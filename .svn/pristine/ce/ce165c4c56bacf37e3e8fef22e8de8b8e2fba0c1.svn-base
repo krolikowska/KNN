@@ -1,0 +1,170 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Priority_Queue;
+
+namespace KNN
+{
+
+    public class Knn
+    {
+        int k = 0; //inormacja ilu sąsiadów
+        DataManager dm;
+
+        public Knn(string path)
+        {
+            this.Dm = new DataManager(path);
+
+        }
+
+        public int K { get => k; set => k = value; }
+        public DataManager Dm { get => dm; set => dm = value; }
+
+        public delegate double Distance(Tuple t1, Tuple t2);
+
+        public void KnnClassyfication(List<Tuple> train, List<Tuple> test, int k, Distance ComputeDistance)
+        {
+            SimplePriorityQueue<Tuple> distances = new SimplePriorityQueue<Tuple>();
+
+            for (int i = 0; i < test.Count; i++)
+            {
+                for (int j = 0; j < train.Count; j++)
+                {
+                    float prio = (float)ComputeDistance(test[i], train[j]);
+                    distances.Enqueue(train[j], prio);
+                }
+
+                var kNeighb = distances.Take(k); // wybieramy k elementow ze zbioru treningowego, dla ktorych obliczona odleglosc jest najmniejsza
+                var result = (from n in kNeighb
+                              select n.ClassIndex).Average();
+
+                test[i].PredictedClassIndex = (int)Math.Round(result, 0);
+                distances.Clear();
+            }
+        }
+        /// <summary>
+        /// Metoda oblicza procentowa trafnosc predykcji klasy dla próbki testowej
+        /// </summary>
+        /// <param name="test">próbka testowa</param>
+        /// <returns></returns>
+        public double Accuracy(List<Tuple> test)
+        {
+
+            double badClass = 0;
+            for (int i = 0; i < test.Count; i++)
+            {
+                if (test[i].ClassIndex != test[i].PredictedClassIndex)
+                    badClass++;
+            }
+            double tmp = badClass / test.Count;
+            return (1 - tmp);
+        }
+
+
+        private static List<Tuple> PrepareTrainData(List<Tuple> toTrain1, List<Tuple> toTrain2)
+        {
+            List<Tuple> train = new List<Tuple>();
+            train.AddRange(toTrain1);
+            train.AddRange(toTrain2);
+            return train;
+        }
+
+        public void CrossTest(int k, Distance ComputeDistance)
+        {
+            List<Tuple> train = PrepareTrainData(dm.SampleA, dm.SampleB);
+            Console.WriteLine("train: SampleA, sambleB, test: SampleC\n");
+            this.KnnClassyfication(train, dm.SampleC, k, ComputeDistance);
+            for (int i = 0; i < 3; i++)
+            {
+                PrintErrors(this.ComputeErrors(dm.SampleC, i), i);
+
+            }
+            Console.WriteLine("train: SampleB, SampleC, test: SampleA\n");
+            train = PrepareTrainData(dm.SampleB, dm.SampleC);
+            this.KnnClassyfication(train, dm.SampleA, k, ComputeDistance);
+            for (int i = 0; i < 3; i++)
+            {
+                PrintErrors(this.ComputeErrors(dm.SampleA, i), i);
+
+            }
+            Console.WriteLine("train: SampleA, SampleC, test: SampleB\n");
+            train = PrepareTrainData(dm.SampleC, dm.SampleA);
+            this.KnnClassyfication(train, dm.SampleB, k, ComputeDistance);
+            for (int i = 0; i < 3; i++)
+            {
+                PrintErrors(this.ComputeErrors(dm.SampleB, i), i);
+
+            }
+
+
+        }
+
+        public void PrintErrors(int[] errors, int classIndx)
+        {
+            Console.WriteLine("H0: dana nie jest klasy {0}", classIndx + 1);
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine($"|   {errors[0]:d2} || II {errors[1]:d2} |");
+            Console.WriteLine($"| I {errors[2]:d2} ||    {errors[3]:d2} |");
+            Console.WriteLine("------------------------------------");
+        }
+        public int[] ComputeErrors(List<Tuple> test, int classIndx)
+        {
+            // HO : zakładamy ze klasa t != classIndx;
+
+            int truePositive = 0; int falseNegative = 0;
+            int falsePositive = 0; int trueNegative = 0;
+
+            for (int i = 0; i < test.Count; i++)
+            {
+                if (test[i].PredictedClassIndex != classIndx && test[i].ClassIndex != classIndx) //HO potw, Klas potw
+                    truePositive++;
+                if (test[i].PredictedClassIndex != classIndx && test[i].ClassIndex == classIndx) //HO potw, Klas odrzuca
+                    falsePositive++;
+                if (test[i].PredictedClassIndex == classIndx && test[i].ClassIndex != classIndx) //H0 odrz, klas potw
+                    falseNegative++;
+                if (test[i].PredictedClassIndex == classIndx && test[i].ClassIndex == classIndx) //H0 odrz, klas odrz
+                    trueNegative++;
+            }
+            int[] errors = new int[4] { truePositive, falseNegative, falsePositive, trueNegative };
+            return errors;
+        }
+
+        public double GetManhattanDistance(Tuple t1, Tuple t2)
+        {
+            double distance = 0;
+            for (int i = 0; i < t1.Size; i++)
+            {
+                distance += Math.Abs(t1.AttributesData[i] - t2.AttributesData[i]);
+            }
+            return distance;
+        }
+        public double GetEculidianDistance(Tuple t1, Tuple t2)
+        {
+            double distance = 0;
+            for (int i = 0; i < t1.Size; i++)
+            {
+                distance += (t1.AttributesData[i] - t2.AttributesData[i]) * (t1.AttributesData[i] - t2.AttributesData[i]);
+            }
+            return Math.Sqrt(distance);
+
+        }
+        public double GetChebyshevDistance(Tuple t1, Tuple t2)
+        {
+            double distance = 0;
+
+            List<double> distances = new List<double>();
+            for (int i = 0; i < t1.Size; i++)
+            {
+                distances.Add(Math.Abs(t1.AttributesData[i] - t2.AttributesData[i]));
+            }
+
+            distance = distances.Max();
+            return distance;
+        }
+
+
+
+    }
+}

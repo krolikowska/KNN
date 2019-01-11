@@ -1,0 +1,33 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace KNN
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+           
+
+          //  DataManager dmIris = new DataManager("../../iris.csv");
+          //  DataManager dmWine = new DataManager("../../wine.csv");
+
+            Knn knn = new Knn("../../iris_norm.csv");
+            Console.WriteLine("Hipoteza:  obiekt należy do klasy X");
+            Console.WriteLine("H0:  obiekt nie należy do klasy X");
+            Console.WriteLine("-------------------------------------------------------");
+            Console.WriteLine($"             |    H0 odrzucamy  ||  H0 potwierdzamy  |");
+            Console.WriteLine("-------------------------------------------------------");
+            Console.WriteLine($" H0 błędna   |   true positive  || II false negative |");
+            Console.WriteLine($" H0 prawdziwa| I false positive ||    true negative  |");
+            Console.WriteLine("------------------------------------------");
+            knn.CrossTest(10, new Knn.Distance(knn.GetEculidianDistance));
+
+                        
+            Console.ReadKey();
+        }
+    }
+}

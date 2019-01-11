@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.10
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecommendationEngine", "bookRecomendationKnn\RecommendationEngine.csproj", "{9DB2592F-3804-419B-9BD6-4D86EA1F16D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecommendationEngine.Tests", "UnitTest\RecommendationEngine.Tests.csproj", "{374DCE48-945D-45AC-A69A-E6BF8F8F45BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecommendationAPI", "RecommendationAPI\RecommendationAPI.csproj", "{0C176ED9-4BF5-46A1-A4C8-62F11F6F248D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecommendationAPI.Tests", "RecommendationAPI.Tests\RecommendationAPI.Tests.csproj", "{F846342A-5006-49A6-B567-C33BA09FB441}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "DataAccess\DataAccess.csproj", "{D6AB2F78-3F3C-425F-B690-9DC0B210C780}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess.Tests", "DataAccess.Tests\DataAccess.Tests.csproj", "{8681FF60-4CC5-4C75-8F72-FB48080C311C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9DB2592F-3804-419B-9BD6-4D86EA1F16D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DB2592F-3804-419B-9BD6-4D86EA1F16D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DB2592F-3804-419B-9BD6-4D86EA1F16D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DB2592F-3804-419B-9BD6-4D86EA1F16D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{374DCE48-945D-45AC-A69A-E6BF8F8F45BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{374DCE48-945D-45AC-A69A-E6BF8F8F45BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{374DCE48-945D-45AC-A69A-E6BF8F8F45BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{374DCE48-945D-45AC-A69A-E6BF8F8F45BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C176ED9-4BF5-46A1-A4C8-62F11F6F248D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C176ED9-4BF5-46A1-A4C8-62F11F6F248D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C176ED9-4BF5-46A1-A4C8-62F11F6F248D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C176ED9-4BF5-46A1-A4C8-62F11F6F248D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F846342A-5006-49A6-B567-C33BA09FB441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F846342A-5006-49A6-B567-C33BA09FB441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F846342A-5006-49A6-B567-C33BA09FB441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F846342A-5006-49A6-B567-C33BA09FB441}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6AB2F78-3F3C-425F-B690-9DC0B210C780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6AB2F78-3F3C-425F-B690-9DC0B210C780}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6AB2F78-3F3C-425F-B690-9DC0B210C780}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6AB2F78-3F3C-425F-B690-9DC0B210C780}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8681FF60-4CC5-4C75-8F72-FB48080C311C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8681FF60-4CC5-4C75-8F72-FB48080C311C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8681FF60-4CC5-4C75-8F72-FB48080C311C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8681FF60-4CC5-4C75-8F72-FB48080C311C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {14D4B959-E708-4635-B4BD-0FBC00B2DCA6}
+		VisualSVNWorkingCopyRoot = .
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+EndGlobal

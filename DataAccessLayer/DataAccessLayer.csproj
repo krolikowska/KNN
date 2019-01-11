@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="BookRecomendationModel.Context.tt" />
+    <None Remove="BookRecomendationModel.tt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="BookRecomendationModel.Context.tt">
+      <DependentUpon>BookRecomendationModel.edmx</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </Content>
+    <Content Include="BookRecomendationModel.tt">
+      <DependentUpon>BookRecomendationModel.edmx</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EntityFramework" Version="6.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Book.cs">
+      <DependentUpon>BookRecomendationModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="BookRecomendation.cs">
+      <DependentUpon>BookRecomendationModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="BookRecomendationModel.Context.cs">
+      <DependentUpon>BookRecomendationModel.Context.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="BookRecomendationModel.cs">
+      <DependentUpon>BookRecomendationModel.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="BookRecomendationModel.Designer.cs">
+      <DependentUpon>BookRecomendationModel.edmx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="BooksRating.cs">
+      <DependentUpon>BookRecomendationModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="User.cs">
+      <DependentUpon>BookRecomendationModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="UserSimilar.cs">
+      <DependentUpon>BookRecomendationModel.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="BookRecomendationModel.edmx.diagram">
+      <DependentUpon>BookRecomendationModel.edmx</DependentUpon>
+    </None>
+  </ItemGroup>
+
+</Project>
