@@ -12,8 +12,7 @@ namespace DataAccess
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    
     public partial class BooksRecomendationsEntities : DbContext
     {
         public BooksRecomendationsEntities()
@@ -31,10 +30,8 @@ namespace DataAccess
         public virtual DbSet<BooksRating> BooksRatings { get; set; }
         public virtual DbSet<DistanceSimilarityType> DistanceSimilarityTypes { get; set; }
         public virtual DbSet<Parameter> Parameters { get; set; }
-        public virtual DbSet<Test> Tests { get; set; }
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<UserSimilar> UserSimilars { get; set; }
+        public virtual DbSet<Test> Tests { get; set; }
     }
 }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-

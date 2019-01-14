@@ -8,7 +8,7 @@ namespace RecommendationEngine
     {
         public Container BuildContainer()
         {
-            Container container = new Container();
+            var container = new Container();
 
             container.Register<IBookRecommender, BookRecommender>();
             container.Register<INearestNeighborsSearch, NearestNeighborsSearch>();
@@ -16,6 +16,7 @@ namespace RecommendationEngine
             container.Register<ISettings, Settings>();
             container.Register<IDataManager, DataManager>();
             container.Register<IUserBasedCollaborativeFiltering, UserBasedCollaborativeFiltering>();
+            container.Register<RecommendationEvaluator>();
 
             return container;
         }

@@ -6,7 +6,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{9DB2592F-3804-419B-9BD6-4D86EA1F16D2}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>RecommendationEngine</RootNamespace>
     <AssemblyName>RecommendationEngine</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
@@ -36,6 +36,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CsvHelper, Version=12.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
@@ -86,7 +89,6 @@
     <Compile Include="INearestNeighborsSearch.cs" />
     <Compile Include="ISettings.cs" />
     <Compile Include="IUserBasedCollaborativeFiltering.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -94,6 +96,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="NearestNeighborsSearch.cs" />
+    <Compile Include="RecommendationEvaluator.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="UserBasedCollaborativeFiltering.cs" />
   </ItemGroup>

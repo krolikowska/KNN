@@ -1,50 +1,67 @@
-﻿using Shouldly;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Shouldly;
 using Xunit;
 
 namespace DataAccess.Tests
 {
     public class DataManagerTests
     {
-        private DataManager _sut;
-        private DataManagerHelpers _dm;
-
         public DataManagerTests()
         {
             _sut = new DataManager();
             _dm = new DataManagerHelpers();
 
-            _dm.AddUsers(new int[] { 1, 2, 3, 4 });
-            _dm.AddBooks(new string[] { "1111", "1112", "1113", "1114", "1115", "2222" });
+            _dm.AddUsers(new[] {1, 2, 3, 4});
+            _dm.AddBooks(new[] {"1111", "1112", "1113", "1114", "1115", "2222"});
 
-            AddBooksRatedByUser(1, new string[] { "1111", "1112", "1113" }, new short[] { 1, 10, 5 });
-            AddBooksRatedByUser(2, new string[] { "1111", "1112", "1113" }, new short[] { 1, 10, 5 });
-            AddBooksRatedByUser(3, new string[] { "1113", "1114", "1115" }, new short[] { 8, 5, 7 });
-            AddBooksRatedByUser(4, new string[] { "1111", "2222", "1113", "1115" }, new short[] { 7, 4, 5, 5 });
+            AddBooksRatedByUser(1, new[] {"1111", "1112", "1113"}, new short[] {1, 10, 5});
+            AddBooksRatedByUser(2, new[] {"1111", "1112", "1113"}, new short[] {1, 10, 5});
+            AddBooksRatedByUser(3, new[] {"1113", "1114", "1115"}, new short[] {8, 5, 7});
+            AddBooksRatedByUser(4, new[] {"1111", "2222", "1113", "1115"}, new short[] {7, 4, 5, 5});
         }
 
-        [Fact]
-        public void AddUser2()
+        private readonly DataManager _sut;
+        private readonly DataManagerHelpers _dm;
+
+        [InlineData(0, 4)]
+        [InlineData(4, 1)]
+        [InlineData(5, 0)]
+        [Theory]
+        public void GetBooksRatedByMoreThanNusers(int n, int expectedCount)
         {
-            //AddUserWithRatedBook(2, "12345", 5);
-            var actual = _sut.GetAllUsersWithRatedBooks();
-            actual.Length.ShouldBe(4);
+            var books = new[] {"1111", "1113", "1115", "2222"};
+            var actual = _sut.GetBooksIdsRatedByAtLeastNUsers(books, n);
+            actual.Length.ShouldBe(expectedCount);
         }
 
-        //dobry
-        [Fact]
-        public void GetRecomendationsForUser()
+        private BookScore[] CreateBookRatesBasedOnUser(int userId, List<BooksRating> booksRatedByUser)
         {
-            var userId = 1;
-            var booksRatedByUser = _dm.GetBooksRatingsForGivenUser(userId);
-            var books = CreateBookRatesBasedOnUser(userId, booksRatedByUser);
+            var result = new List<BookScore>();
+            for (var i = 0; i < booksRatedByUser.Count(); i++)
+                result.Add(new BookScore
+                {
+                    BookId = booksRatedByUser[i].ISBN,
+                    Rate = booksRatedByUser[i].Rate,
+                    PredictedRate = _dm.RandomNumber(i)
+                });
+            return result.ToArray();
+        }
 
-            _sut.AddRecommendedBooksForUser(books, userId);
+        private void AddBooksRatedByUser(int userId, string[] isbn, short[] rate)
+        {
+            for (var i = 0; i < isbn.Length; i++)
+            {
+                var bookRate = new BooksRating
+                {
+                    ISBN = isbn[i],
+                    UserId = userId,
+                    Rate = rate[i]
+                };
 
-            var actual = _sut.GetRecomenndedBooksForUser(userId);
-            actual.Length.ShouldBe(3);
+                _dm.AddBooksRatings(bookRate);
+            }
         }
 
         //dobry
@@ -87,37 +104,11 @@ namespace DataAccess.Tests
         }
 
         [Fact]
-        public void GetBooksRatedByMoreThanNusers_ReturnsCorrect()
+        public void AddUser2()
         {
-            var books = new string[] { "1111", "1113", "1115", "2222" };
-            var actual = _sut.GetBooksIdsRatedByAtLeastNusers(books, 3);
-            actual.ShouldBe(new string[] { "1111", "1113" });
-        }
-
-        [InlineData(0, 4)]
-        [InlineData(4, 1)]
-        [InlineData(5, 0)]
-        [Theory]
-        public void GetBooksRatedByMoreThanNusers(int n, int expectedCount)
-        {
-            var books = new string[] { "1111", "1113", "1115", "2222" };
-            var actual = _sut.GetBooksIdsRatedByAtLeastNusers(books, n);
-            actual.Length.ShouldBe(expectedCount);
-        }
-
-        private BookScore[] CreateBookRatesBasedOnUser(int userId, List<BooksRating> booksRatedByUser)
-        {
-            var result = new List<BookScore>();
-            for (int i = 0; i < booksRatedByUser.Count(); i++)
-            {
-                result.Add(new BookScore
-                {
-                    BookId = booksRatedByUser[i].ISBN,
-                    Rate = booksRatedByUser[i].Rate,
-                    PredictedRate = _dm.RandomNumber(i)
-                });
-            }
-            return result.ToArray();
+            //AddUserWithRatedBook(2, "12345", 5);
+            var actual = _sut.GetAllUsersWithRatedBooks();
+            actual.Length.ShouldBe(4);
         }
 
         //dobry
@@ -139,19 +130,26 @@ namespace DataAccess.Tests
             actual.ShouldBe(Math.Round(booksRatedByUser.Average(x => x.Rate), 2));
         }
 
-        private void AddBooksRatedByUser(int userId, string[] isbn, short[] rate)
+        [Fact]
+        public void GetBooksRatedByMoreThanNusers_ReturnsCorrect()
         {
-            for (int i = 0; i < isbn.Length; i++)
-            {
-                var bookRate = new BooksRating
-                {
-                    ISBN = isbn[i],
-                    UserId = userId,
-                    Rate = rate[i]
-                };
+            var books = new[] {"1111", "1113", "1115", "2222"};
+            var actual = _sut.GetBooksIdsRatedByAtLeastNUsers(books, 3);
+            actual.ShouldBe(new[] {"1111", "1113"});
+        }
 
-                _dm.AddBooksRatings(bookRate);
-            }
+        //dobry
+        [Fact]
+        public void GetRecomendationsForUser()
+        {
+            var userId = 1;
+            var booksRatedByUser = _dm.GetBooksRatingsForGivenUser(userId);
+            var books = CreateBookRatesBasedOnUser(userId, booksRatedByUser);
+
+            _sut.AddRecommendedBooksForUser(books, userId);
+
+            var actual = _sut.GetRecommendedBooksForUser(userId);
+            actual.Length.ShouldBe(3);
         }
     }
 }

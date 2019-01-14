@@ -1,5 +1,5 @@
-﻿using DataAccess;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using DataAccess;
 
 namespace RecommendationEngine
 {
@@ -7,6 +7,8 @@ namespace RecommendationEngine
     {
         BookScore[] GetRecommendedBooks(List<UsersSimilarity> similarUsers, int userId);
 
-        SortedSet<BookScore> PredictScore(List<UsersSimilarity> similarUsers, int userId, string[] booksIds);
+       
+
+        BookScore[] PredictScoreForAllUsersBooks(List<UsersSimilarity> similarUsers, int userId);
     }
 }

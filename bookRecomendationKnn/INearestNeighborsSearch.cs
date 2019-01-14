@@ -1,5 +1,5 @@
-﻿using DataAccess;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using DataAccess;
 
 namespace RecommendationEngine
 {
@@ -16,5 +16,7 @@ namespace RecommendationEngine
         List<UsersSimilarity> GetNearestNeighbors(int userId, List<User> usersToCompare);
 
         double GetPearsonCorrelationSimilarity(BookScore[] user1rates, BookScore[] user2rates);
+
+        List<UsersSimilarity> GetNearestNeighborsFromDb(int userId);
     }
 }

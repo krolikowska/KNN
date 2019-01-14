@@ -1,94 +1,28 @@
-﻿using DataAccess;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using DataAccess;
 using NSubstitute;
 using Priority_Queue;
 using RecommendationEngine.Properties;
 using Shouldly;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace RecommendationEngine.Tests
 {
     public class BookRecomendationEngineTests
     {
-        private NearestNeighborsSearch _sut;
-        private DataManager _dm;
-        private Settings _settings;
-
         public BookRecomendationEngineTests()
         {
             _settings = new Settings();
-            Common s = new Common(_settings, _dm);
+            var s = new Common(_settings, _dm);
             _dm = Substitute.For<DataManager>();
             _sut = new NearestNeighborsSearch(_settings, s);
         }
 
-        [Fact]
-        public void ComputeSimilarityBetweenUsers()
-        {
-            Book[] books1 =
-            {
-                new Book() {ISBN = "1"},
-                new Book() {ISBN = "2"},
-                new Book() {ISBN = "3"},
-                new Book() {ISBN = "4"},
-                new Book() {ISBN = "5"}
-            };
-            short[] rates1 = { 5, 4, 2, 0, 2 };
-
-            Book[] books2 =
-           {
-                new Book() {ISBN = "11"},
-                new Book() {ISBN = "12"},
-                new Book() {ISBN = "3"},
-                new Book() {ISBN = "4"},
-                new Book() {ISBN = "5"}
-            };
-            short[] rates2 = { 5, 0, 0, 0, 2 };
-
-            User user1 = CreateUser(books1, rates1, 1);
-            User user2 = CreateUser(books2, rates2, 2);
-            _dm.GetBooksReadByUser(user1).Returns(books1);
-            _dm.GetBooksReadByUser(user2).Returns(books2);
-
-            // var actual = _sut.ComputeSimilarityBetweenUsers(user1, user2);
-
-            //actual.Select(x => x.ISBN).ToArray().ShouldBe(new string[] { "3", "4", "5" }, false);
-        }
-
-        [Fact]
-        public void Simtest()
-        {
-            var bookRatings1 = new BookScore[]
-            {
-                new BookScore{ BookId = "1", Rate = 5},
-                new BookScore{ BookId = "2", Rate = 2},
-                new BookScore{ BookId = "5", Rate = 5},
-                new BookScore{ BookId = "3", Rate = 0},
-                new BookScore{ BookId = "4", Rate = 1},
-                 new BookScore{ BookId = "3", Rate = 1}
-            };
-
-            var bookRatings2 = new BookScore[]
-            {
-                new BookScore{ BookId = "5", Rate = 5},
-                new BookScore{ BookId = "12", Rate = 2},
-                new BookScore{ BookId = "3", Rate = 4},
-                new BookScore{ BookId = "4", Rate = 2},
-                new BookScore{ BookId = "54", Rate = 1}
-            };
-            _dm.GetBooksRatesByUserId(1).Returns(bookRatings1);
-            _dm.GetBooksRatesByUserId(2).Returns(bookRatings2);
-
-            //  var actualUser1 = _sut.GetSameBooksFromUsers(1, 2);
-            // var actualUser2 = _sut.GetSameBooksFromUsers(2, 1);
-
-            //actualUser1.Select(x => x.BookId).ToArray().ShouldBe(new string[] { "3", "4", "5" });
-            //actualUser2.Select(x => x.BookId).ToArray().ShouldBe(new string[] { "3", "4", "5" });
-            //actualUser1.Select(x => x.Rate).ToArray().ShouldBe(new short[] { 0, 1, 5 });
-            //actualUser2.Select(x => x.Rate).ToArray().ShouldBe(new short[] { 4, 2, 5 });
-        }
+        private readonly NearestNeighborsSearch _sut;
+        private readonly DataManager _dm;
+        private readonly Settings _settings;
 
         public User CreateUser(Book[] books, short[] rates, int id)
         {
@@ -102,8 +36,7 @@ namespace RecommendationEngine.Tests
         public List<BooksRating> CreateBookRatings(Book[] books, short[] rates, int userId)
         {
             var booksRatings = new List<BooksRating>();
-            for (int i = 0; i < books.Length; i++)
-            {
+            for (var i = 0; i < books.Length; i++)
                 booksRatings.Add(new BooksRating
                 {
                     Book = books[i],
@@ -111,113 +44,199 @@ namespace RecommendationEngine.Tests
                     ISBN = books[i].ISBN,
                     UserId = userId
                 });
-            }
             return booksRatings;
         }
 
-        [Fact]
-        public void TestGetDistance()
+        public static int CompareBySmt(double x, double y)
         {
-            var bookRatings1 = new BookScore[]
-            {
-                new BookScore{ BookId = "1", Rate = 1},
-                new BookScore{ BookId = "2", Rate = 2},
-                new BookScore{ BookId = "3", Rate = 1},
-                new BookScore{ BookId = "4", Rate = 1},
-                new BookScore{ BookId = "5", Rate = 10},
-                 new BookScore{ BookId = "6", Rate = 10}
-            };
+            if (x > y) return -1;
 
-            var bookRatings2 = new BookScore[]
-            {
-          new BookScore{ BookId = "1", Rate = 1},
-                new BookScore{ BookId = "2", Rate = 2},
-                new BookScore{ BookId = "3", Rate = 1},
-                new BookScore{ BookId = "4", Rate = 1},
-                new BookScore{ BookId = "5", Rate = 10},
-                 new BookScore{ BookId = "6", Rate = 10}
-            };
-            var actual3 = _sut.GetCosineDistance(bookRatings1, bookRatings2);
-            var actual5 = _sut.GetPearsonCorrelationSimilarity(bookRatings1, bookRatings2);
-
-            actual3.ShouldBe(0);
-            actual5.ShouldBe(1, 0.0001);
-
-            //1. "manhattan";
-            //2. "czebyszew";
-            //3. "cosinus";
-            //4. "euclidian";
-            //5. "pearson similiarity";
+            if (x == y) return 0;
+            return 1;
+            ;
         }
 
         [Fact]
-        public void TestGetFarestDistance()
+        public void ComputeSimilarityBetweenUsers()
         {
-            var bookRatings1 = new BookScore[]
+            Book[] books1 =
             {
-                new BookScore{ BookId = "1", Rate = 10},
-                new BookScore{ BookId = "2", Rate = 9},
-                new BookScore{ BookId = "3", Rate = 10},
-                new BookScore{ BookId = "4", Rate = 10},
-                new BookScore{ BookId = "5", Rate = 1},
-                 new BookScore{ BookId = "6", Rate = 1}
+                new Book {ISBN = "1"},
+                new Book {ISBN = "2"},
+                new Book {ISBN = "3"},
+                new Book {ISBN = "4"},
+                new Book {ISBN = "5"}
             };
+            short[] rates1 = {5, 4, 2, 0, 2};
 
-            var bookRatings2 = new BookScore[]
+            Book[] books2 =
             {
-          new BookScore{ BookId = "1", Rate = 1},
-                new BookScore{ BookId = "2", Rate = 2},
-                new BookScore{ BookId = "3", Rate = 1},
-                new BookScore{ BookId = "4", Rate = 1},
-                new BookScore{ BookId = "5", Rate = 10},
-                 new BookScore{ BookId = "6", Rate = 10}
+                new Book {ISBN = "11"},
+                new Book {ISBN = "12"},
+                new Book {ISBN = "3"},
+                new Book {ISBN = "4"},
+                new Book {ISBN = "5"}
             };
-            var actual3 = _sut.GetCosineDistance(bookRatings1, bookRatings2);
-            var actual5 = _sut.GetPearsonCorrelationSimilarity(bookRatings1, bookRatings2);
+            short[] rates2 = {5, 0, 0, 0, 2};
 
-            actual3.ShouldBe(76.02, 0.01);
-            actual5.ShouldBe(-1, 0.0001);
+            var user1 = CreateUser(books1, rates1, 1);
+            var user2 = CreateUser(books2, rates2, 2);
+            _dm.GetBooksReadByUser(user1).Returns(books1);
+            _dm.GetBooksReadByUser(user2).Returns(books2);
+
+            // var actual = _sut.ComputeSimilarityBetweenUsers(user1, user2);
+
+            //actual.Select(x => x.ISBN).ToArray().ShouldBe(new string[] { "3", "4", "5" }, false);
         }
 
         [Fact]
-        public void TestGetOtherDistance()
+        public void ListOfBooks()
         {
-            var bookRatings1 = new BookScore[]
+            var mutual = new[] //te poodbne ktore ocenil sasiad
             {
-                new BookScore{ BookId = "1", Rate = 152},
-                new BookScore{ BookId = "2", Rate =543},
-                new BookScore{ BookId = "3", Rate = 153},
-                new BookScore{ BookId = "4", Rate = 153},
-                new BookScore{ BookId = "5", Rate = 1},
-                 new BookScore{ BookId = "6", Rate = 1}
+                //new BookRates{ BookId = "1", Rate = 1},
+                new BookScore {BookId = "2", Rate = 4},
+                new BookScore {BookId = "3", Rate = 3}
+                //new BookRates{ BookId = "4", Rate = 10},
+                //new BookRates{ BookId = "5", Rate = 10},
+                //new BookRates{ BookId = "6", Rate = 6}
+            };
+            var unique = new[]
+            {
+                new BookScore {BookId = "15", Rate = 9}
+                //new BookRates{ BookId = "16", Rate = 10}
             };
 
-            var bookRatings2 = new BookScore[]
+            var unique2 = new[]
             {
-          new BookScore{ BookId = "1", Rate = 1},
-                new BookScore{ BookId = "2", Rate = 2},
-                new BookScore{ BookId = "3", Rate = 1},
-                new BookScore{ BookId = "4", Rate = 1},
-                new BookScore{ BookId = "5", Rate = 10},
-                 new BookScore{ BookId = "6", Rate = 10}
+                new BookScore {BookId = "15", Rate = 10},
+                new BookScore {BookId = "16", Rate = 10}
             };
-            ////var actual1 = _sut.GetManhattanDistance(bookRatings1, bookRatings2);
-            //var actual2 = _sut.GetChebyshevDistance(bookRatings1, bookRatings2);
-            var actual3 = _sut.GetCosineDistance(bookRatings1, bookRatings2);
-            //var actual4 = _sut.GetEculidianDistance(bookRatings1, bookRatings2);
-            //var actual5 = _sut.GetPearsonCorrelationSimilarity(bookRatings1, bookRatings2);
 
-            //actual1.ShouldBe(52);
-            //actual2.ShouldBe(9);
-            actual3.ShouldBe(0, 0.01);
-            ////actual4.ShouldBe(21.31, 0.01);
-            //actual5.ShouldBe(1, 0.0001);
+            var sim = new UsersSimilarity
+            {
+                UserId = 1,
+                ComparedUserId = 2,
+                Similarity = 1,
+                ComparedUserRatesForMutualBooks = mutual,
+                BooksUniqueForComparedUser = unique
+            };
 
-            //1. "manhattan";
-            //2. "czebyszew";
-            //3. "cosinus";
-            //4. "euclidian";
-            //5. "pearson similiarity";
+            var sim2 = new UsersSimilarity
+            {
+                UserId = 1,
+                ComparedUserId = 3,
+                Similarity = 1,
+                ComparedUserRatesForMutualBooks = mutual,
+                BooksUniqueForComparedUser = unique2
+            };
+
+            var userSimList = new List<UsersSimilarity>
+            {
+                sim, sim2
+            };
+            //var actual = _sut.GetUniqueBooksIds(userSimList);
+            //actual.Count().ShouldBe(2);
+        }
+
+        [Fact]
+        public void PredictRecommendBooks()
+        {
+            _dm.GetAverageRateForUser(1).Returns(5);
+            var mutual = new[] //te poodbne ktore ocenil sasiad
+            {
+                //new BookRates{ BookId = "1", Rate = 1},
+                new BookScore {BookId = "2", Rate = 4},
+                new BookScore {BookId = "3", Rate = 3}
+                //new BookRates{ BookId = "4", Rate = 10},
+                //new BookRates{ BookId = "5", Rate = 10},
+                //new BookRates{ BookId = "6", Rate = 6}
+            };
+
+            var unique = new[]
+            {
+                new BookScore {BookId = "15", Rate = 9}
+                //new BookRates{ BookId = "16", Rate = 10}
+            };
+
+            var unique2 = new[]
+            {
+                new BookScore {BookId = "15", Rate = 10},
+                new BookScore {BookId = "16", Rate = 10}
+            };
+
+            var sim = new UsersSimilarity
+            {
+                UserId = 1,
+                ComparedUserId = 2,
+                Similarity = 1,
+                ComparedUserRatesForMutualBooks = mutual,
+                BooksUniqueForComparedUser = unique
+            };
+
+            var sim2 = new UsersSimilarity
+            {
+                UserId = 1,
+                ComparedUserId = 3,
+                Similarity = 1,
+                ComparedUserRatesForMutualBooks = mutual,
+                BooksUniqueForComparedUser = unique2
+            };
+            var userSimList = new List<UsersSimilarity>
+            {
+                sim, sim2
+            };
+
+            Book[] books1 =
+            {
+                //new Book() {ISBN = "1"},
+                new Book {ISBN = "2"},
+                new Book {ISBN = "3"}
+                //new Book() {ISBN = "4"},
+                //new Book() {ISBN = "5"},
+                //new Book() {ISBN = "6"}
+            };
+            short[] rates1 = {7, 6};
+
+            var user1 = CreateUser(books1, rates1, 1);
+
+            // var actual = _sut.PredictRecommendBooks(userSimList, user1, 1, DistanceSimilarityEnum.PearsonSimilarity, 0);
+            //actual.Count().ShouldBe(1);
+            //actual[0].PredictedRate.ShouldBe(10.5);
+            //actual[1].RatePredictionCoeficient.ShouldBe(2);
+        }
+
+        [Fact]
+        public void Simtest()
+        {
+            var bookRatings1 = new[]
+            {
+                new BookScore {BookId = "1", Rate = 5},
+                new BookScore {BookId = "2", Rate = 2},
+                new BookScore {BookId = "5", Rate = 5},
+                new BookScore {BookId = "3", Rate = 0},
+                new BookScore {BookId = "4", Rate = 1},
+                new BookScore {BookId = "3", Rate = 1}
+            };
+
+            var bookRatings2 = new[]
+            {
+                new BookScore {BookId = "5", Rate = 5},
+                new BookScore {BookId = "12", Rate = 2},
+                new BookScore {BookId = "3", Rate = 4},
+                new BookScore {BookId = "4", Rate = 2},
+                new BookScore {BookId = "54", Rate = 1}
+            };
+            _dm.GetBooksRatesByUserId(1).Returns(bookRatings1);
+            _dm.GetBooksRatesByUserId(2).Returns(bookRatings2);
+
+            //  var actualUser1 = _sut.GetSameBooksFromUsers(1, 2);
+            // var actualUser2 = _sut.GetSameBooksFromUsers(2, 1);
+
+            //actualUser1.Select(x => x.BookId).ToArray().ShouldBe(new string[] { "3", "4", "5" });
+            //actualUser2.Select(x => x.BookId).ToArray().ShouldBe(new string[] { "3", "4", "5" });
+            //actualUser1.Select(x => x.Rate).ToArray().ShouldBe(new short[] { 0, 1, 5 });
+            //actualUser2.Select(x => x.Rate).ToArray().ShouldBe(new short[] { 4, 2, 5 });
         }
 
         [Fact]
@@ -254,10 +273,7 @@ namespace RecommendationEngine.Tests
             // var list = queue.ToList();
 
             var list = new List<int>();
-            foreach (var i in queue)
-            {
-                list.Add(queue.Dequeue());
-            }
+            foreach (var i in queue) list.Add(queue.Dequeue());
 
             list[0].ShouldBe(4); //-1
             list[1].ShouldBe(1); //-0.5
@@ -270,133 +286,121 @@ namespace RecommendationEngine.Tests
 
             // jesli teraz odwrocimy czyli nie 1, a -1 bedzie o najlepszym tym to powinno byc dobrze
 
-            int[] a1 = { 1, 2, 3, 4 };
-            int[] a2 = { 1, 2, 6, 7 };
+            int[] a1 = {1, 2, 3, 4};
+            int[] a2 = {1, 2, 6, 7};
 
-            a2.Except(a1).ShouldBe(new int[] { 6, 7 });
+            a2.Except(a1).ShouldBe(new[] {6, 7});
         }
 
         [Fact]
-        public void PredictRecommendBooks()
+        public void TestGetDistance()
         {
-            _dm.GetAverageRateForUser(1).Returns(5);
-            var mutual = new BookScore[] //te poodbne ktore ocenil sasiad
+            var bookRatings1 = new[]
             {
-                //new BookRates{ BookId = "1", Rate = 1},
-                new BookScore{ BookId = "2", Rate = 4},
-                new BookScore{ BookId = "3", Rate = 3},
-                //new BookRates{ BookId = "4", Rate = 10},
-                //new BookRates{ BookId = "5", Rate = 10},
-                //new BookRates{ BookId = "6", Rate = 6}
+                new BookScore {BookId = "1", Rate = 1},
+                new BookScore {BookId = "2", Rate = 2},
+                new BookScore {BookId = "3", Rate = 1},
+                new BookScore {BookId = "4", Rate = 1},
+                new BookScore {BookId = "5", Rate = 10},
+                new BookScore {BookId = "6", Rate = 10}
             };
 
-            var unique = new BookScore[]
+            var bookRatings2 = new[]
             {
-                new BookScore{ BookId = "15", Rate = 9}
-                 //new BookRates{ BookId = "16", Rate = 10}
+                new BookScore {BookId = "1", Rate = 1},
+                new BookScore {BookId = "2", Rate = 2},
+                new BookScore {BookId = "3", Rate = 1},
+                new BookScore {BookId = "4", Rate = 1},
+                new BookScore {BookId = "5", Rate = 10},
+                new BookScore {BookId = "6", Rate = 10}
             };
+            var actual3 = _sut.GetCosineDistance(bookRatings1, bookRatings2);
+            var actual5 = _sut.GetPearsonCorrelationSimilarity(bookRatings1, bookRatings2);
 
-            var unique2 = new BookScore[]
-            {
-                new BookScore{ BookId = "15", Rate = 10},
-                 new BookScore{ BookId = "16", Rate = 10}
-            };
+            actual3.ShouldBe(0);
+            actual5.ShouldBe(1, 0.0001);
 
-            UsersSimilarity sim = new UsersSimilarity
-            {
-                UserId = 1,
-                ComparedUserId = 2,
-                Similarity = 1,
-                ComparedUserRatesForMutualBooks = mutual,
-                BooksUniqueForComparedUser = unique
-            };
-
-            UsersSimilarity sim2 = new UsersSimilarity
-            {
-                UserId = 1,
-                ComparedUserId = 3,
-                Similarity = 1,
-                ComparedUserRatesForMutualBooks = mutual,
-                BooksUniqueForComparedUser = unique2
-            };
-            var userSimList = new List<UsersSimilarity>()
-            {
-                sim, sim2
-            };
-
-            Book[] books1 =
-            {
-                //new Book() {ISBN = "1"},
-                new Book() {ISBN = "2"},
-                new Book() {ISBN = "3"},
-                //new Book() {ISBN = "4"},
-                //new Book() {ISBN = "5"},
-                //new Book() {ISBN = "6"}
-            };
-            short[] rates1 = { 7, 6 };
-
-            User user1 = CreateUser(books1, rates1, 1);
-
-            // var actual = _sut.PredictRecommendBooks(userSimList, user1, 1, DistanceSimilarityEnum.PearsonSimilarity, 0);
-            //actual.Count().ShouldBe(1);
-            //actual[0].PredictedRate.ShouldBe(10.5);
-            //actual[1].RatePredictionCoeficient.ShouldBe(2);
+            //1. "manhattan";
+            //2. "czebyszew";
+            //3. "cosinus";
+            //4. "euclidian";
+            //5. "pearson similiarity";
         }
 
         [Fact]
-        public void ListOfBooks()
+        public void TestGetFarestDistance()
         {
-            var mutual = new BookScore[] //te poodbne ktore ocenil sasiad
+            var bookRatings1 = new[]
             {
-                //new BookRates{ BookId = "1", Rate = 1},
-                new BookScore{ BookId = "2", Rate = 4},
-                new BookScore{ BookId = "3", Rate = 3},
-                //new BookRates{ BookId = "4", Rate = 10},
-                //new BookRates{ BookId = "5", Rate = 10},
-                //new BookRates{ BookId = "6", Rate = 6}
-            };
-            var unique = new BookScore[]
-            {
-                new BookScore{ BookId = "15", Rate = 9}
-                 //new BookRates{ BookId = "16", Rate = 10}
+                new BookScore {BookId = "1", Rate = 10},
+                new BookScore {BookId = "2", Rate = 9},
+                new BookScore {BookId = "3", Rate = 10},
+                new BookScore {BookId = "4", Rate = 10},
+                new BookScore {BookId = "5", Rate = 1},
+                new BookScore {BookId = "6", Rate = 1}
             };
 
-            var unique2 = new BookScore[]
+            var bookRatings2 = new[]
             {
-                new BookScore{ BookId = "15", Rate = 10},
-                 new BookScore{ BookId = "16", Rate = 10}
+                new BookScore {BookId = "1", Rate = 1},
+                new BookScore {BookId = "2", Rate = 2},
+                new BookScore {BookId = "3", Rate = 1},
+                new BookScore {BookId = "4", Rate = 1},
+                new BookScore {BookId = "5", Rate = 10},
+                new BookScore {BookId = "6", Rate = 10}
+            };
+            var actual3 = _sut.GetCosineDistance(bookRatings1, bookRatings2);
+            var actual5 = _sut.GetPearsonCorrelationSimilarity(bookRatings1, bookRatings2);
+
+            actual3.ShouldBe(76.02, 0.01);
+            actual5.ShouldBe(-1, 0.0001);
+        }
+
+        [Fact]
+        public void TestGetOtherDistance()
+        {
+            var bookRatings1 = new[]
+            {
+                new BookScore {BookId = "1", Rate = 152},
+                new BookScore {BookId = "2", Rate = 543},
+                new BookScore {BookId = "3", Rate = 153},
+                new BookScore {BookId = "4", Rate = 153},
+                new BookScore {BookId = "5", Rate = 1},
+                new BookScore {BookId = "6", Rate = 1}
             };
 
-            UsersSimilarity sim = new UsersSimilarity
+            var bookRatings2 = new[]
             {
-                UserId = 1,
-                ComparedUserId = 2,
-                Similarity = 1,
-                ComparedUserRatesForMutualBooks = mutual,
-                BooksUniqueForComparedUser = unique
+                new BookScore {BookId = "1", Rate = 1},
+                new BookScore {BookId = "2", Rate = 2},
+                new BookScore {BookId = "3", Rate = 1},
+                new BookScore {BookId = "4", Rate = 1},
+                new BookScore {BookId = "5", Rate = 10},
+                new BookScore {BookId = "6", Rate = 10}
             };
+            ////var actual1 = _sut.GetManhattanDistance(bookRatings1, bookRatings2);
+            //var actual2 = _sut.GetChebyshevDistance(bookRatings1, bookRatings2);
+            var actual3 = _sut.GetCosineDistance(bookRatings1, bookRatings2);
+            //var actual4 = _sut.GetEculidianDistance(bookRatings1, bookRatings2);
+            //var actual5 = _sut.GetPearsonCorrelationSimilarity(bookRatings1, bookRatings2);
 
-            UsersSimilarity sim2 = new UsersSimilarity
-            {
-                UserId = 1,
-                ComparedUserId = 3,
-                Similarity = 1,
-                ComparedUserRatesForMutualBooks = mutual,
-                BooksUniqueForComparedUser = unique2
-            };
+            //actual1.ShouldBe(52);
+            //actual2.ShouldBe(9);
+            actual3.ShouldBe(0, 0.01);
+            ////actual4.ShouldBe(21.31, 0.01);
+            //actual5.ShouldBe(1, 0.0001);
 
-            var userSimList = new List<UsersSimilarity>()
-            {
-                sim, sim2
-            };
-            //var actual = _sut.GetUniqueBooksIds(userSimList);
-            //actual.Count().ShouldBe(2);
+            //1. "manhattan";
+            //2. "czebyszew";
+            //3. "cosinus";
+            //4. "euclidian";
+            //5. "pearson similiarity";
         }
 
         [Fact]
         public void testSimpleQueue()
         {
-            Comparison<double> comparison = new Comparison<double>(CompareBySmt);
+            Comparison<double> comparison = CompareBySmt;
 
             var recommendedBooks = new SimplePriorityQueue<string, double>(comparison);
             recommendedBooks.Enqueue("test1", 1.0);
@@ -411,22 +415,6 @@ namespace RecommendationEngine.Tests
                 recommendedBooks.Dequeue(),
                 recommendedBooks.Dequeue()
             };
-        }
-
-        public static int CompareBySmt(double x, double y)
-        {
-            if (x > y)
-            {
-                return -1;
-            }
-            else
-            {
-                if (x == y) return 0;
-                else
-                {
-                    return 1;
-                };
-            }
         }
     }
 }

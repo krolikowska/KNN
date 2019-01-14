@@ -12,55 +12,14 @@ namespace DataAccess
     using System;
     using System.Collections.Generic;
     
-    /// <summary>   A book recomendation. </summary>
     public partial class BookRecomendation
     {
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Gets or sets the identifier of the book. </summary>
-        ///
-        /// <value> The identifier of the book. </value>
-        ///-------------------------------------------------------------------------------------------------
-
         public string BookId { get; set; }
-
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Gets or sets the identifier of the user. </summary>
-        ///
-        /// <value> The identifier of the user. </value>
-        ///-------------------------------------------------------------------------------------------------
-
         public int UserId { get; set; }
-
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Gets or sets the predicted rate. </summary>
-        ///
-        /// <value> The predicted rate. </value>
-        ///-------------------------------------------------------------------------------------------------
-
         public Nullable<double> PredictedRate { get; set; }
-
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Gets or sets the identifier. </summary>
-        ///
-        /// <value> The identifier. </value>
-        ///-------------------------------------------------------------------------------------------------
-
         public int Id { get; set; }
-
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Gets or sets the book. </summary>
-        ///
-        /// <value> The book. </value>
-        ///-------------------------------------------------------------------------------------------------
-
+    
         public virtual Book Book { get; set; }
-
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Gets or sets the user. </summary>
-        ///
-        /// <value> The user. </value>
-        ///-------------------------------------------------------------------------------------------------
-
         public virtual User User { get; set; }
     }
 }

@@ -8,13 +8,8 @@ namespace DataAccess
         {
             if (x.Similarity == y.Similarity && x.UserId == y.UserId) return 0;
             if (x.Similarity > y.Similarity)
-            {
                 return 1;
-            }
-            else
-            {
-                return -1;
-            }
+            return -1;
         }
     }
 
@@ -24,13 +19,8 @@ namespace DataAccess
         {
             if (x.Similarity == y.Similarity && x.UserId == y.UserId) return 0;
             if (x.Similarity > y.Similarity)
-            {
                 return -1;
-            }
-            else
-            {
-                return 1;
-            }
+            return 1;
         }
     }
 
@@ -40,13 +30,8 @@ namespace DataAccess
         {
             if (x.PredictedRate == y.PredictedRate && x.BookId == y.BookId) return 0;
             if (x.PredictedRate > y.PredictedRate)
-            {
                 return -1;
-            }
-            else
-            {
-                return 1;
-            }
+            return 1;
         }
     }
 }

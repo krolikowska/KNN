@@ -60,11 +60,9 @@
           <Property Name="UserId" Type="int" Nullable="false" />
           <Property Name="BookId" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ActualRate" Type="int" Nullable="false" />
-          <Property Name="PredictedRate" Type="int" />
-          <Property Name="Error" Type="float" />
+          <Property Name="PredictedRate" Type="float" />
           <Property Name="ParametersSet" Type="int" Nullable="false" />
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="CrossTestVariant" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Users">
           <Key>
@@ -234,7 +232,6 @@
           <EntitySet Name="BooksRatings" EntityType="BooksRecomendationsModel.BooksRating" />
           <EntitySet Name="DistanceSimilarityTypes" EntityType="BooksRecomendationsModel.DistanceSimilarityType" />
           <EntitySet Name="Parameters" EntityType="BooksRecomendationsModel.Parameter" />
-          <EntitySet Name="Tests" EntityType="BooksRecomendationsModel.Test" />
           <EntitySet Name="Users" EntityType="BooksRecomendationsModel.User" />
           <EntitySet Name="UserSimilars" EntityType="BooksRecomendationsModel.UserSimilar" />
           <AssociationSet Name="FK_BookRecomendation_Books" Association="BooksRecomendationsModel.FK_BookRecomendation_Books">
@@ -257,10 +254,6 @@
             <End Role="DistanceSimilarityType" EntitySet="DistanceSimilarityTypes" />
             <End Role="Parameter" EntitySet="Parameters" />
           </AssociationSet>
-          <AssociationSet Name="FK_Test_Parameters1" Association="BooksRecomendationsModel.FK_Test_Parameters1">
-            <End Role="Parameter" EntitySet="Parameters" />
-            <End Role="Test" EntitySet="Tests" />
-          </AssociationSet>
           <AssociationSet Name="FK_UserSimilar_Parameters" Association="BooksRecomendationsModel.FK_UserSimilar_Parameters">
             <End Role="Parameter" EntitySet="Parameters" />
             <End Role="UserSimilar" EntitySet="UserSimilars" />
@@ -268,6 +261,11 @@
           <AssociationSet Name="FK_UserSimilar_Users" Association="BooksRecomendationsModel.FK_UserSimilar_Users">
             <End Role="User" EntitySet="Users" />
             <End Role="UserSimilar" EntitySet="UserSimilars" />
+          </AssociationSet>
+          <EntitySet Name="Tests" EntityType="BooksRecomendationsModel.Test" />
+          <AssociationSet Name="FK_Test_Parameters1" Association="BooksRecomendationsModel.FK_Test_Parameters1">
+            <End Role="Parameter" EntitySet="Parameters" />
+            <End Role="Test" EntitySet="Tests" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="BookRecomendation">
@@ -324,23 +322,9 @@
           <Property Name="DistanceType" Type="Int32" Nullable="false" />
           <Property Name="Id" Type="Int32" Nullable="false" />
           <NavigationProperty Name="DistanceSimilarityType" Relationship="BooksRecomendationsModel.FK_Parameters_DistanceSimilarityType" FromRole="Parameter" ToRole="DistanceSimilarityType" />
-          <NavigationProperty Name="Tests" Relationship="BooksRecomendationsModel.FK_Test_Parameters1" FromRole="Parameter" ToRole="Test" />
           <NavigationProperty Name="UserSimilars" Relationship="BooksRecomendationsModel.FK_UserSimilar_Parameters" FromRole="Parameter" ToRole="UserSimilar" />
           <Property Name="BookPopularity" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Test">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="UserId" Type="Int32" Nullable="false" />
-          <Property Name="BookId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ActualRate" Type="Int32" Nullable="false" />
-          <Property Name="PredictedRate" Type="Int32" />
-          <Property Name="Error" Type="Double" />
-          <Property Name="ParametersSet" Type="Int32" Nullable="false" />
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="CrossTestVariant" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Parameter" Relationship="BooksRecomendationsModel.FK_Test_Parameters1" FromRole="Test" ToRole="Parameter" />
+          <NavigationProperty Name="Tests" Relationship="BooksRecomendationsModel.FK_Test_Parameters1" FromRole="Parameter" ToRole="Test" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -427,18 +411,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Test_Parameters1">
-          <End Type="BooksRecomendationsModel.Parameter" Role="Parameter" Multiplicity="1" />
-          <End Type="BooksRecomendationsModel.Test" Role="Test" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Parameter">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="Test">
-              <PropertyRef Name="ParametersSet" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_UserSimilar_Parameters">
           <End Type="BooksRecomendationsModel.Parameter" Role="Parameter" Multiplicity="1" />
           <End Type="BooksRecomendationsModel.UserSimilar" Role="UserSimilar" Multiplicity="*" />
@@ -460,6 +432,30 @@
             </Principal>
             <Dependent Role="UserSimilar">
               <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Test">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="BookId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ActualRate" Type="Int32" Nullable="false" />
+          <Property Name="PredictedRate" Type="Double" />
+          <Property Name="ParametersSet" Type="Int32" Nullable="false" />
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <NavigationProperty Name="Parameter" Relationship="BooksRecomendationsModel.FK_Test_Parameters1" FromRole="Test" ToRole="Parameter" />
+        </EntityType>
+        <Association Name="FK_Test_Parameters1">
+          <End Type="BooksRecomendationsModel.Parameter" Role="Parameter" Multiplicity="1" />
+          <End Type="BooksRecomendationsModel.Test" Role="Test" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Parameter">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Test">
+              <PropertyRef Name="ParametersSet" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -521,20 +517,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Tests">
-            <EntityTypeMapping TypeName="BooksRecomendationsModel.Test">
-              <MappingFragment StoreEntitySet="Test">
-                <ScalarProperty Name="CrossTestVariant" ColumnName="CrossTestVariant" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="ParametersSet" ColumnName="ParametersSet" />
-                <ScalarProperty Name="Error" ColumnName="Error" />
-                <ScalarProperty Name="PredictedRate" ColumnName="PredictedRate" />
-                <ScalarProperty Name="ActualRate" ColumnName="ActualRate" />
-                <ScalarProperty Name="BookId" ColumnName="BookId" />
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="BooksRecomendationsModel.User">
               <MappingFragment StoreEntitySet="Users">
@@ -553,6 +535,18 @@
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Similarity" ColumnName="Similarity" />
                 <ScalarProperty Name="NeighborId" ColumnName="NeighborId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tests">
+            <EntityTypeMapping TypeName="BooksRecomendationsModel.Test">
+              <MappingFragment StoreEntitySet="Test">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ParametersSet" ColumnName="ParametersSet" />
+                <ScalarProperty Name="PredictedRate" ColumnName="PredictedRate" />
+                <ScalarProperty Name="ActualRate" ColumnName="ActualRate" />
+                <ScalarProperty Name="BookId" ColumnName="BookId" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
               </MappingFragment>
             </EntityTypeMapping>

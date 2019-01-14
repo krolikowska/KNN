@@ -17,8 +17,8 @@ namespace DataAccess
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Parameter()
         {
-            this.Tests = new HashSet<Test>();
             this.UserSimilars = new HashSet<UserSimilar>();
+            this.Tests = new HashSet<Test>();
         }
     
         public int Kneigbors { get; set; }
@@ -29,8 +29,8 @@ namespace DataAccess
     
         public virtual DistanceSimilarityType DistanceSimilarityType { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Test> Tests { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<UserSimilar> UserSimilars { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Test> Tests { get; set; }
     }
 }

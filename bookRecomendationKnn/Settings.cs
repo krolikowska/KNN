@@ -4,10 +4,6 @@ namespace RecommendationEngine.Properties
 {
     public sealed partial class Settings : ISettings
     {
-        public Settings()
-        {
-        }
-
         public Parameter CreateParameterSetFromSettings()
         {
             return new Parameter
@@ -15,7 +11,7 @@ namespace RecommendationEngine.Properties
                 BookPopularity = BookPopularityAmongUsers,
                 Kneigbors = NumOfNeighbors,
                 NumberOfBooksEachUserRated = MinNumberOfBooksEachUserRated,
-                DistanceType = (int)SimilarityDistance,
+                DistanceType = (int) SimilarityDistance,
                 Id = Id
             };
         }

@@ -1,136 +1,187 @@
-﻿///-------------------------------------------------------------------------------------------------
-// file:	BookRecommender.cs
-//
-// summary:	Implements the book recommender class
-///-------------------------------------------------------------------------------------------------
-
-using DataAccess;
-using RecommendationEngine.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DataAccess;
+using RecommendationEngine.Properties;
 
 namespace RecommendationEngine
 {
-    /// <summary>   A book recommender. </summary>
+    /// <summary>
+    ///     A book recommender.
+    /// </summary>
     public class BookRecommender : IBookRecommender
     {
-        /// <summary>   Options for controlling the operation. </summary>
+        /// <summary>
+        ///     The common.
+        /// </summary>
+        private readonly ICommon _common;
+
+        /// <summary>
+        ///     Number of books to recommends.
+        /// </summary>
+        private readonly int _numbOfBooksToRecommend;
+
+        /// <summary>
+        ///     Options for controlling the operation.
+        /// </summary>
         private readonly ISettings _settings;
 
-        /// <summary>   The common. </summary>
-        private ICommon _common;
-
-        /// <summary>   Number of books to recommends. </summary>
-        private readonly int _numOfBooksToRecommend;
-
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Constructor. </summary>
-        ///
-        /// <param name="settings"> Options for controlling the operation. </param>
-        /// <param name="common">   The common. </param>
-        ///-------------------------------------------------------------------------------------------------
-
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="settings">
+        ///     Options for controlling the operation.
+        /// </param>
+        /// <param name="common">The common.</param>
         public BookRecommender(ISettings settings, ICommon common)
         {
             _settings = settings;
             _common = common;
-            _numOfBooksToRecommend = settings.NumOfBooksToRecommend;
+            _numbOfBooksToRecommend = settings.NumOfBooksToRecommend;
         }
 
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Gets recommended books. </summary>
-        ///
-        /// <param name="similarUsers"> The similar users. </param>
-        /// <param name="userId">       Identifier for the user. </param>
-        ///
-        /// <returns>   An array of book score. </returns>
-        ///-------------------------------------------------------------------------------------------------
-
+        /// <summary>
+        ///     Gets recommended books.
+        /// </summary>
+        /// <param name="similarUsers">The similar users.</param>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <returns>
+        ///     An array of book score.
+        /// </returns>
         public BookScore[] GetRecommendedBooks(List<UsersSimilarity> similarUsers, int userId)
         {
-            var booksIds = _common.PreparePotentionalBooksToRecommendation(similarUsers);
-            var booksRates = PredictScore(similarUsers, userId, booksIds);
-            var result = booksRates.Take(_numOfBooksToRecommend).ToArray();
+            var booksIds = _common.PreparePotentialBooksToRecommendation(similarUsers, userId);
+            var booksRates = GetAllRecommendedBooksForUser(similarUsers, userId, booksIds);
+            var result = booksRates.Take(_numbOfBooksToRecommend).ToArray();
             _common.PersistRecommendedBooksInDb(result, userId);
             return result.ToArray();
         }
 
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Predict score. </summary>
-        ///
-        /// <param name="similarUsers"> The similar users. </param>
-        /// <param name="userId">       Identifier for the user. </param>
-        /// <param name="booksIds">     List of identifiers for the books. </param>
-        ///
-        /// <returns>   A SortedSet&lt;BookScore&gt; </returns>
-        ///-------------------------------------------------------------------------------------------------
-
-        public SortedSet<BookScore> PredictScore(List<UsersSimilarity> similarUsers, int userId, string[] booksIds)
+        /// <summary>
+        ///     Predict score.
+        /// </summary>
+        /// <param name="similarUsers">The similar users.</param>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <param name="booksIds">
+        ///     <see cref="List`1" /> of identifiers for the books.
+        /// </param>
+        /// <returns>
+        ///     A SortedSet<BookScore>
+        /// </returns>
+        public SortedSet<BookScore> GetAllRecommendedBooksForUser(List<UsersSimilarity> similarUsers, int userId,
+            string[] booksIds)
         {
-            if (similarUsers?.Count == 0) return null;
+            if (similarUsers == null || similarUsers?.Count == 0) return null;
             var recommendedBooks = new SortedSet<BookScore>(new BookScoreComparer());
 
             if (booksIds.Length == 0)
             {
                 _common.PersistRecommendedBooksInDb(null, userId);
                 return null;
-            };
+            }
+
+            ;
 
             var meanRateForUser = _common.GetAverageRateForUser(userId) ?? 0;
 
-            foreach (var u in similarUsers)
-            {
-                u.AverageScoreForComparedUser = _common.GetAverageRateForUser(u.ComparedUserId);
-            }
+            //foreach (var u in similarUsers)
+            //    u.AverageScoreForComparedUser = _common.GetAverageRateForUser(u.ComparedUserId);
 
-            for (int i = 0; i < booksIds.Length; i++)
+            for (var i = 0; i < booksIds.Length; i++)
             {
                 var bookScore = EvaluateScore(similarUsers, booksIds[i], meanRateForUser);
                 if (bookScore != null)
                     recommendedBooks.Add(bookScore);
             }
+
             return recommendedBooks;
         }
 
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Evaluate score. </summary>
-        ///
-        /// <param name="similarUsers">     The similar users. </param>
-        /// <param name="bookId">           Identifier for the book. </param>
-        /// <param name="meanRateForUser">  The mean rate for user. </param>
-        ///
-        /// <returns>   A BookScore. </returns>
-        ///-------------------------------------------------------------------------------------------------
-
-        private BookScore EvaluateScore(List<UsersSimilarity> similarUsers, string bookId, double meanRateForUser)
+        /// <summary>
+        ///     Predict score for given book.
+        /// </summary>
+        /// <param name="similarUsers">The similar users.</param>
+        /// <param name="userId">Identifier for the user.</param>
+        /// <param name="bookId">Identifier for the book.</param>
+        /// <returns>
+        ///     A BookScore.
+        /// </returns>
+        public BookScore PredictScoreForGivenBook(List<UsersSimilarity> similarUsers, int userId, string bookId)
         {
-            var scoreNominator = 0.0;
-            var scoreDenominator = 0.0;
+            if (similarUsers == null || similarUsers.Count == 0) return null;
+            var meanRateForUser = _common.GetAverageRateForUser(userId) ?? 0;
 
+            return EvaluateScore(similarUsers, bookId, meanRateForUser);
+        }
+
+        public List<UsersSimilarity> CombineUniqueAndMutualBooksForUser(List<UsersSimilarity> similarUsers)
+        {
             foreach (var u in similarUsers)
-            {
-                var book = u.BooksUniqueForComparedUser.Where(x => x.BookId == bookId).FirstOrDefault();
+                u.BooksUniqueForComparedUser =
+                    u.BooksUniqueForComparedUser.Concat(u.ComparedUserRatesForMutualBooks).ToArray();
 
-                if (book != null)
-                {
-                    scoreNominator += (book.Rate - u.AverageScoreForComparedUser.Value) * u.Similarity.Value;
-                    scoreDenominator += Math.Abs(u.Similarity.Value);
-                }
+            return similarUsers;
+        }
+
+        public BookScore[] PredictScoreForAllUsersBooks(List<UsersSimilarity> similarUsers, int userId)
+        {
+            var booksUserRead = _common.GetAllBooksUserReadWithScores(userId);
+
+            var predictedScores = new BookScore[booksUserRead.Length];
+            var meanRateForUser = _common.GetAverageRateForUser(userId) ?? 0;
+
+            // we want to predict scores event for books that user already rated
+            similarUsers = CombineUniqueAndMutualBooksForUser(similarUsers);
+            for (var i = 0; i < booksUserRead.Length; i++)
+            {
+                var book = booksUserRead[i];
+                predictedScores[i] = EvaluateScore(similarUsers, book.BookId, meanRateForUser);
+                predictedScores[i].Rate = book.Rate;
             }
 
-            if (scoreDenominator != 0)
-            {
+            return predictedScores;
+        }
+
+        /// <summary>
+        ///     Evaluate score.
+        /// </summary>
+        /// <param name="similarUsers">The similar users.</param>
+        /// <param name="bookId">Identifier for the book.</param>
+        /// <param name="meanRateForUser">The mean rate for user.</param>
+        /// <returns>
+        ///     A BookScore.
+        /// </returns>
+        private BookScore EvaluateScore(IEnumerable<UsersSimilarity> similarUsers, string bookId,
+            double meanRateForUser)
+        {
+            var scoreNumerator = 0.0;
+            var scoreDenominator = 0.0;
+            var rate = 0.0;
+           
+                foreach (var u in similarUsers)
+                {
+                    var book = u.BooksUniqueForComparedUser.FirstOrDefault(x => x.BookId == bookId);
+
+                    if (book != null && u.AverageScoreForComparedUser != null && u.Similarity != null)
+                    {
+                        scoreNumerator += (book.Rate - u.AverageScoreForComparedUser.Value) * u.Similarity.Value;
+                        scoreDenominator += Math.Abs(u.Similarity.Value);
+                    }
+                }
+
+                if (scoreDenominator != 0)
+                {
+                    rate = scoreNumerator / scoreDenominator + meanRateForUser;
+                }
+
                 var recommendedBook = new BookScore
                 {
                     BookId = bookId,
-                    PredictedRate = Math.Round((scoreNominator / scoreDenominator) + meanRateForUser, 0)
+                    PredictedRate = Math.Round(rate, 2)
                 };
 
                 return recommendedBook;
-            }
-
-            return null;
+            
         }
     }
 }

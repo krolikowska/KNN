@@ -1,8 +1,9 @@
-﻿using Microsoft.Owin;
+﻿using System.Web.Http;
+using Microsoft.Owin;
 using Owin;
-using System.Web.Http;
+using RecommendationAPI;
 
-[assembly: OwinStartup(typeof(RecommendationAPI.Startup))]
+[assembly: OwinStartup(typeof(Startup))]
 
 namespace RecommendationAPI
 {

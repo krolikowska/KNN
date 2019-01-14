@@ -17,11 +17,9 @@ namespace DataAccess
         public int UserId { get; set; }
         public string BookId { get; set; }
         public int ActualRate { get; set; }
-        public Nullable<int> PredictedRate { get; set; }
-        public Nullable<double> Error { get; set; }
+        public Nullable<double> PredictedRate { get; set; }
         public int ParametersSet { get; set; }
         public int Id { get; set; }
-        public int CrossTestVariant { get; set; }
     
         public virtual Parameter Parameter { get; set; }
     }

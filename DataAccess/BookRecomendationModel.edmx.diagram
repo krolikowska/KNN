@@ -10,7 +10,6 @@
         <EntityTypeShape EntityType="BooksRecomendationsModel.BooksRating" Width="1.5" PointX="3" PointY="2.25" />
         <EntityTypeShape EntityType="BooksRecomendationsModel.DistanceSimilarityType" Width="1.5" PointX="1.5" PointY="12.375" />
         <EntityTypeShape EntityType="BooksRecomendationsModel.Parameter" Width="1.5" PointX="0.75" PointY="9" />
-        <EntityTypeShape EntityType="BooksRecomendationsModel.Test" Width="1.5" PointX="3" PointY="14.875" />
         <EntityTypeShape EntityType="BooksRecomendationsModel.User" Width="1.5" PointX="0.75" PointY="5" />
         <EntityTypeShape EntityType="BooksRecomendationsModel.UserSimilar" Width="1.5" PointX="3" PointY="8" />
         <AssociationConnector Association="BooksRecomendationsModel.FK_BookRecomendation_Books" />
@@ -18,9 +17,10 @@
         <AssociationConnector Association="BooksRecomendationsModel.FK_BookRatings_Books" />
         <AssociationConnector Association="BooksRecomendationsModel.FK_BookRatings_Users" />
         <AssociationConnector Association="BooksRecomendationsModel.FK_Parameters_DistanceSimilarityType" />
-        <AssociationConnector Association="BooksRecomendationsModel.FK_Test_Parameters1" />
         <AssociationConnector Association="BooksRecomendationsModel.FK_UserSimilar_Parameters" />
         <AssociationConnector Association="BooksRecomendationsModel.FK_UserSimilar_Users" />
+        <EntityTypeShape EntityType="BooksRecomendationsModel.Test" Width="1.5" PointX="3" PointY="15.125" />
+        <AssociationConnector Association="BooksRecomendationsModel.FK_Test_Parameters1" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

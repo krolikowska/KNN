@@ -4,8 +4,8 @@
     {
         public override bool Equals(object obj)
         {
-            User other = (User)obj;
-            return other.UserId == this.UserId;
+            var other = (User) obj;
+            return other.UserId == UserId;
         }
 
         public override int GetHashCode()
