@@ -308,13 +308,13 @@
     <Content Include="Scripts\jquery-3.3.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\bookRecomendationKnn\RecommendationEngine.csproj">
-      <Project>{9db2592f-3804-419b-9bd6-4d86ea1f16d2}</Project>
-      <Name>RecommendationEngine</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DataAccess\DataAccess.csproj">
       <Project>{d6ab2f78-3f3c-425f-b690-9dc0b210c780}</Project>
       <Name>DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RecommendationEngine\RecommendationEngine.csproj">
+      <Project>{9db2592f-3804-419b-9bd6-4d86ea1f16d2}</Project>
+      <Name>RecommendationEngine</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

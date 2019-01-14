@@ -97,7 +97,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\bookRecomendationKnn\RecommendationEngine.csproj">
+    <ProjectReference Include="..\RecommendationEngine\RecommendationEngine.csproj">
       <Project>{9db2592f-3804-419b-9bd6-4d86ea1f16d2}</Project>
       <Name>RecommendationEngine</Name>
     </ProjectReference>
