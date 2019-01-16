@@ -6,20 +6,15 @@
 //     Manual changes to this file will be overwritten if the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-using System.ComponentModel.DataAnnotations.Schema;
+
 namespace DataAccess
 {
     using System;
-    using System.Collections.Generic;
     
-    public partial class BooksRating
+    public partial class SelectMutualBooks_Result
     {
         public int UserId { get; set; }
-        [Column(TypeName = "varchar")]
         public string ISBN { get; set; }
         public short Rate { get; set; }
-    
-        public virtual Book Book { get; set; }
-        public virtual User User { get; set; }
     }
 }

@@ -14,7 +14,8 @@ namespace DataAccess
         /// <param name="userId">Identifier for the user.</param>
         void AddRecommendedBooksForUser(BookScore[] books, int userId);
 
-       
+        List<int> GetUsersIdsWithNorMoreRatedBooks(int n);
+        List<SelectMutualBooks_Result> GetMutualBooksForUsers(int user1, int user2);
 
         /// <summary>
         ///     Adds a similar users.

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace DataAccess
 {
@@ -39,7 +40,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                return db.BooksRatings.Select(x => x.User).Where(x => userIds.Contains(x.UserId)).ToList();
+                return db.BooksRatings.AsNoTracking().Select(x => x.User).Where(x => userIds.Contains(x.UserId)).ToList();
             }
         }
 
@@ -68,7 +69,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                return db.BooksRatings.Select(x => x.User).Distinct().ToArray();
+                return db.BooksRatings.AsNoTracking().Select(x => x.User).Distinct().ToArray();
             }
         }
 
@@ -84,11 +85,25 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var temp = db.BooksRatings
+                var temp = db.BooksRatings.AsNoTracking()
                              .Select(x => x.User)
                              .Distinct()
                              .Where(x => x.BooksRatings.Count >= n)
                              .ToList();
+                return temp;
+            }
+        }
+
+        public List<int> GetUsersIdsWithNorMoreRatedBooks(int n)
+        {
+            using (var db = new BooksRecomendationsEntities())
+            {
+                var temp = db.BooksRatings
+                             .Where(x => x.User.BooksRatings.Count >= n)
+                             .Select(x => x.UserId)
+                             .Distinct()
+                             .OrderBy(x => x).ToList();
+                             
                 return temp;
             }
         }
@@ -108,7 +123,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var books = db.BooksRatings.Where(x => ids.Contains(x.ISBN)).GroupBy(y => y.ISBN);
+                var books = db.BooksRatings.AsNoTracking().Where(x => ids.Contains(x.ISBN)).GroupBy(y => y.ISBN);
                 return books.Where(x => x.Count() >= n).Select(x => x.Key).ToArray();
             }
         }
@@ -127,7 +142,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var books = db.BooksRatings.GroupBy(y => y.ISBN);
+                var books = db.BooksRatings.AsNoTracking().GroupBy(y => y.ISBN);
                 return books.Where(x => x.Count() >= n).OrderByDescending(x => x.Count()).Select(x => x.Key).ToArray();
             }
         }
@@ -143,7 +158,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                return db.BooksRatings.Where(x => x.UserId == user.UserId).Select(z => z.Book).ToArray();
+                return db.BooksRatings.AsNoTracking().Where(x => x.UserId == user.UserId).Select(z => z.Book).ToArray();
             }
         }
 
@@ -158,7 +173,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                return db.BooksRatings.Where(x => x.UserId == user.UserId).Select(x => x.Book).ToArray();
+                return db.BooksRatings.AsNoTracking().Where(x => x.UserId == user.UserId).Select(x => x.Book).ToArray();
             }
         }
 
@@ -173,7 +188,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                return db.BooksRatings.Where(x => x.UserId == userId)
+                return db.BooksRatings.AsNoTracking().Where(x => x.UserId == userId)
                          .AsEnumerable()
                          .Select(x => new BookScore {BookId = x.ISBN, Rate = x.Rate})
                          .ToArray();
@@ -191,7 +206,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var ratings = db.BooksRatings.Where(x => x.UserId == userId).ToArray();
+                var ratings = db.BooksRatings.AsNoTracking().Where(x => x.UserId == userId).ToArray();
                 if (ratings.Length == 0) return null;
                 var average = ratings.Average(x => x.Rate);
                 return Math.Round(average, 2);
@@ -208,7 +223,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var average = db.BooksRatings.Average(x => x.Rate);
+                var average = db.BooksRatings.AsNoTracking().Average(x => x.Rate);
                 return Math.Round(average, 2);
             }
         }
@@ -224,7 +239,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var average = db.BooksRatings.Where(x => x.ISBN == isbn).Average(x => x.Rate);
+                var average = db.BooksRatings.AsNoTracking().Where(x => x.ISBN == isbn).Average(x => x.Rate);
                 return Math.Round(average, 2);
             }
         }
@@ -241,14 +256,12 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var books1 = db.BooksRatings.Where(x => x.UserId == user1).Select(x => x.ISBN);
-                var books2 = db.BooksRatings.Where(x => x.UserId == user2).Select(x => x.ISBN);
-
+                var books1 = db.BooksRatings.AsNoTracking().Where(x => x.UserId == user1).Select(x => x.ISBN);
+                var books2 = db.BooksRatings.AsNoTracking().Where(x => x.UserId == user2).Select(x => x.ISBN);
+                
                 return books1.Intersect(books2).Distinct().ToArray();
             }
         }
-
-       
 
         /// <summary>
         ///     Gets books identifiers unique for second user.
@@ -262,11 +275,13 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var books1 = db.BooksRatings.Where(x => x.UserId == user1).Select(x => x.ISBN);
-                var books2 = db.BooksRatings.Where(x => x.UserId == user2).Select(x => x.ISBN);
+                var books1 = db.BooksRatings.AsNoTracking().Where(x => x.UserId == user1).Select(x => x.ISBN);
+                var books2 = db.BooksRatings.AsNoTracking().Where(x => x.UserId == user2).Select(x => x.ISBN);
                 return books2.Except(books1).Distinct().ToArray();
             }
         }
+
+       
 
         /// <summary>
         ///     Gets users rates for given <paramref name="isbn" /> list.
@@ -280,7 +295,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var booksRates = db.BooksRatings
+                var booksRates = db.BooksRatings.AsNoTracking()
                                    .Where(x => x.UserId == userId && isbn.Contains(x.ISBN))
                                    .AsEnumerable();
                 return booksRates.Select(x => new BookScore {BookId = x.ISBN, Rate = x.Rate}).ToArray();
@@ -318,6 +333,7 @@ namespace DataAccess
 
                 if (books != null)
                     db.BookRecomendations.AddRange(books.Select(x => MapToBookRecommendationModel(x, userId)));
+                
                 db.SaveChanges();
             }
         }
@@ -353,7 +369,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                return db.UserSimilars
+                return db.UserSimilars.AsNoTracking()
                          .Where(x => x.UserId == userId && x.ParametersSet == settingsVersion)
                          .ToList();
             }
@@ -387,7 +403,7 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                return db.BooksRatings
+                return db.BooksRatings.AsNoTracking()
                          .Where(x => bookIds.Contains(x.ISBN))
                          .Select(x => x.UserId)
                          .Distinct()
@@ -430,6 +446,14 @@ namespace DataAccess
                 Similarity = user.Similarity,
                 ParametersSet = settingsVersion
             };
+        }
+
+        public List<SelectMutualBooks_Result> GetMutualBooksForUsers(int user1, int user2)
+        {
+            using (var db = new BooksRecomendationsEntities())
+            {
+               return db.SelectMutualBooks(user1, user2).ToList();
+            }
         }
     }
 }

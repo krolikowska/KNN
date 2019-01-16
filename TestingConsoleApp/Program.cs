@@ -23,7 +23,7 @@ namespace TestingConsoleApp
 
             string path = @"..\..\ElapsedTime.csv";
 
-            runner.InvokeNearestNeighbors(path, 627);
+            runner.InvokeNearestNeighbors(path, 16943);
         }
     }
 }

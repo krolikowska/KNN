@@ -180,6 +180,10 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Function Name="SelectMutualBooks" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="UserId1" Type="int" Mode="In" />
+          <Parameter Name="UserId2" Type="int" Mode="In" />
+        </Function>
         <EntityContainer Name="BooksRecomendationsModelStoreContainer">
           <EntitySet Name="BookRecomendation" EntityType="Self.BookRecomendation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Books" EntityType="Self.Books" Schema="dbo" store:Type="Tables" />
@@ -267,6 +271,10 @@
             <End Role="Parameter" EntitySet="Parameters" />
             <End Role="Test" EntitySet="Tests" />
           </AssociationSet>
+          <FunctionImport Name="SelectMutualBooks" ReturnType="Collection(BooksRecomendationsModel.SelectMutualBooks_Result)">
+            <Parameter Name="UserId1" Mode="In" Type="Int32" />
+            <Parameter Name="UserId2" Mode="In" Type="Int32" />
+          </FunctionImport>
         </EntityContainer>
         <EntityType Name="BookRecomendation">
           <Key>
@@ -459,6 +467,11 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <ComplexType Name="SelectMutualBooks_Result">
+          <Property Type="Int32" Name="UserId" Nullable="false" />
+          <Property Type="String" Name="ISBN" Nullable="false" MaxLength="50" />
+          <Property Type="Int16" Name="Rate" Nullable="false" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -551,6 +564,15 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SelectMutualBooks" FunctionName="BooksRecomendationsModel.Store.SelectMutualBooks">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="BooksRecomendationsModel.SelectMutualBooks_Result">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="ISBN" ColumnName="ISBN" />
+                <ScalarProperty Name="Rate" ColumnName="Rate" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

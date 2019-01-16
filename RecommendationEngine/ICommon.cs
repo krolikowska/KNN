@@ -6,6 +6,7 @@ namespace RecommendationEngine
 {
     public interface ICommon
     {
+        List<int> SelectUsersIdsToCompareWith(int userId);
         List<User> GetUsersWhoRatedAtLeastNBooks();
 
         List<User> GetUsersWhoReadMostPopularBooks(int numOfBooks);
@@ -19,6 +20,7 @@ namespace RecommendationEngine
 
         UsersSimilarity IdentifyUniqueAndMutualBooksForUsers(UserSimilar userSimilarFromDb);
 
+        UsersSimilarity GetMutualAndUniqueBooks(int userId, int comparedUserId);
         void PersistRecommendedBooksInDb(BookScore[] books, int userId);
 
         void PersistSimilarUsersInDb(List<UsersSimilarity> neighbors, int userId);

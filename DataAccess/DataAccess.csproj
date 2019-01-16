@@ -93,6 +93,9 @@
       <DependentUpon>BookRecomendationModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SelectMutualBooks_Result.cs">
+      <DependentUpon>BookRecomendationModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Test.cs">
       <DependentUpon>BookRecomendationModel.tt</DependentUpon>
     </Compile>

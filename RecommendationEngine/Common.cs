@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using DataAccess;
@@ -122,6 +123,31 @@ namespace RecommendationEngine
             return similarity;
         }
 
+        public UsersSimilarity GetMutualAndUniqueBooks(int userId, int comparedUserId)
+        {
+            var books1 = _context.GetBooksRatesByUserId(userId);
+            var books2 = _context.GetBooksRatesByUserId(comparedUserId);
+            var comparer = new BookScoreEqualityComparer();
+
+       
+            var userRatesForMutualBooks = books1.Intersect(books2, comparer).ToArray();
+            if (userRatesForMutualBooks.Length == 0) return null;
+            var comparedUserRatesForMutualBooks = books2.Intersect(books1, comparer).ToArray();
+
+            var uniqueBooksForComparedUser = books2.Except(books1, comparer).ToArray();
+            
+            var similarity = new UsersSimilarity
+            {
+                BooksUniqueForComparedUser = uniqueBooksForComparedUser,
+                UserRatesForMutualBooks = userRatesForMutualBooks,
+                ComparedUserRatesForMutualBooks = comparedUserRatesForMutualBooks,
+                UserId = userId,
+                ComparedUserId = comparedUserId,
+                AverageScoreForComparedUser = _context.GetAverageRateForUser(comparedUserId),
+            };
+            return similarity;
+        }
+
         /// <summary>
         ///     Select users to compare with.
         /// </summary>
@@ -136,6 +162,15 @@ namespace RecommendationEngine
             if (user == null || usersToCompare.Count == 0) return null;
 
             usersToCompare.Remove(user); //we won't compare with itself
+            return usersToCompare;
+        }
+
+        public List<int> SelectUsersIdsToCompareWith(int userId)
+        {
+            var usersToCompare = _context.GetUsersIdsWithNorMoreRatedBooks(_minNumberOfBooksUserRated);
+            if (usersToCompare.Count == 0) return null;
+
+            usersToCompare.Remove(userId); //we won't compare with itself
             return usersToCompare;
         }
 

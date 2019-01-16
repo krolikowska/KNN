@@ -7,6 +7,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace DataAccess
 {
     using System;
@@ -20,7 +22,8 @@ namespace DataAccess
             this.BookRecomendations = new HashSet<BookRecomendation>();
             this.BooksRatings = new HashSet<BooksRating>();
         }
-    
+
+        [Column(TypeName = "varchar")]
         public string ISBN { get; set; }
         public string BookTitle { get; set; }
         public string BookAuthor { get; set; }

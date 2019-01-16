@@ -13,7 +13,7 @@ namespace RecommendationEngine
 
         List<UsersSimilarity> GetNearestNeighbors(int userId);
 
-        List<UsersSimilarity> GetNearestNeighbors(int userId, List<User> usersToCompare);
+        List<UsersSimilarity> GetNearestNeighbors(int userId, List<int> usersToCompare);
 
         double GetPearsonCorrelationSimilarity(BookScore[] user1rates, BookScore[] user2rates);
 

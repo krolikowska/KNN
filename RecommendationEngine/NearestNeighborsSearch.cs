@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DataAccess;
 using RecommendationEngine.Properties;
@@ -65,9 +67,12 @@ namespace RecommendationEngine
         /// </returns>
         public UsersSimilarity ComputeSimilarityBetweenUsers(int userId, int comparedUserId)
         {
-            var similarity = _common.IdentifyUniqueAndMutualBooksForUsers(userId, comparedUserId);
+            var similarity = _common.GetMutualAndUniqueBooks(userId, comparedUserId);
+          //  var similarity = _common.IdentifyUniqueAndMutualBooksForUsers(userId, comparedUserId);
+            
             if (similarity == null) return null;
 
+            
             switch (_distanceType)
             {
                 case DistanceSimilarityEnum.CosineSimilarity:
@@ -98,7 +103,7 @@ namespace RecommendationEngine
         /// </returns>
         public List<UsersSimilarity> GetNearestNeighbors(int userId)
         {
-            var usersToCompare = _common.SelectUsersToCompareWith(userId);
+            var usersToCompare = _common.SelectUsersIdsToCompareWith(userId);
             var neighbors = GetNearestNeighbors(userId, usersToCompare);
             _common.PersistSimilarUsersInDb(neighbors, userId);
             return neighbors;
@@ -106,7 +111,7 @@ namespace RecommendationEngine
 
         public List<UsersSimilarity> GetNearestNeighborsFromDb(int userId)
         {
-           return _common.GetSimilarUsersFromDb(userId);
+            return _common.GetSimilarUsersFromDb(userId);
         }
 
         /// <summary>
@@ -117,31 +122,38 @@ namespace RecommendationEngine
         /// <returns>
         ///     The nearest neighbors.
         /// </returns>
-        public List<UsersSimilarity> GetNearestNeighbors(int userId, List<User> usersToCompare)
+        public List<UsersSimilarity> GetNearestNeighbors(int userId, List<int> usersToCompare)
         {
             var comparer = DetermineComparerFromDistanceType();
-
+            Console.WriteLine($"get for {userId} with {usersToCompare.Count} users to compare");
             UsersSimilarity similarity;
             var sortedList = new SortedSet<UsersSimilarity>(comparer);
-            object _lock = new object();
-            
+            var _lock = new object();
+
+         //   var opt = new ParallelOptions {MaxDegreeOfParallelism = 4};
             Parallel.ForEach(usersToCompare,
                              comparedUser =>
                              {
+                                 
                                  lock (_lock)
                                  {
-                                     if (comparedUser != null)
-                                     {
-                                         similarity = ComputeSimilarityBetweenUsers(userId, comparedUser.UserId);
+                                     similarity = ComputeSimilarityBetweenUsers(userId, comparedUser);
 
-                                         if (similarity?.Similarity != null) sortedList.Add(similarity);
-                                     }
+                                     if (similarity?.Similarity != null) sortedList.Add(similarity);
                                  }
-                                
                              });
 
-            if (sortedList.Count == 0) return null;
-            return sortedList.Take(_kNeighbors).ToList();
+            //foreach (var u in usersToCompare)
+            //{
+            //    if (u != null)
+            //    {
+            //        similarity = ComputeSimilarityBetweenUsers(userId, u.UserId);
+
+            //        if (similarity?.Similarity != null) sortedList.Add(similarity);
+            //    }
+            //}
+
+            return sortedList.Count == 0 ? null : sortedList.Take(_kNeighbors).ToList();
         }
 
         /// <summary>

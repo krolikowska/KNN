@@ -34,4 +34,17 @@ namespace DataAccess
             return 1;
         }
     }
+
+    public class BookScoreEqualityComparer : IEqualityComparer<BookScore>
+    {
+        public bool Equals(BookScore x, BookScore y)
+        {
+           return x.BookId == y.BookId;
+        }
+
+        public int GetHashCode(BookScore obj)
+        {
+            return obj.BookId.GetHashCode();
+        }
+    }
 }

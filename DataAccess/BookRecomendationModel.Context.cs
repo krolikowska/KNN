@@ -12,12 +12,17 @@ namespace DataAccess
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
     public partial class BooksRecomendationsEntities : DbContext
     {
         public BooksRecomendationsEntities()
             : base("name=BooksRecomendationsEntities")
         {
+            Configuration.AutoDetectChangesEnabled = false;
+            
+
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -33,5 +38,18 @@ namespace DataAccess
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<UserSimilar> UserSimilars { get; set; }
         public virtual DbSet<Test> Tests { get; set; }
+    
+        public virtual ObjectResult<SelectMutualBooks_Result> SelectMutualBooks(Nullable<int> userId1, Nullable<int> userId2)
+        {
+            var userId1Parameter = userId1.HasValue ?
+                new ObjectParameter("UserId1", userId1) :
+                new ObjectParameter("UserId1", typeof(int));
+    
+            var userId2Parameter = userId2.HasValue ?
+                new ObjectParameter("UserId2", userId2) :
+                new ObjectParameter("UserId2", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SelectMutualBooks_Result>("SelectMutualBooks", userId1Parameter, userId2Parameter);
+        }
     }
 }
