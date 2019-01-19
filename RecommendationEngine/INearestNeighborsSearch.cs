@@ -17,6 +17,6 @@ namespace RecommendationEngine
 
         double GetPearsonCorrelationSimilarity(BookScore[] user1rates, BookScore[] user2rates);
 
-        List<UsersSimilarity> GetNearestNeighborsFromDb(int userId);
+        List<UsersSimilarity> GetNearestNeighborsFromDb(int userId, int settingsVersion);
     }
 }

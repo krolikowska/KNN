@@ -109,9 +109,9 @@ namespace RecommendationEngine
             return neighbors;
         }
 
-        public List<UsersSimilarity> GetNearestNeighborsFromDb(int userId)
+        public List<UsersSimilarity> GetNearestNeighborsFromDb(int userId, int settingsVersion)
         {
-            return _common.GetSimilarUsersFromDb(userId);
+            return _common.GetSimilarUsersFromDb(userId, settingsVersion);
         }
 
         /// <summary>

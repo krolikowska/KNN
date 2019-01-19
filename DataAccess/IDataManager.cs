@@ -14,8 +14,17 @@ namespace DataAccess
         /// <param name="userId">Identifier for the user.</param>
         void AddRecommendedBooksForUser(BookScore[] books, int userId);
 
+        Parameter GetParameters(int settingsVersion);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scores"></param>
+        /// <param name="settingVersion"></param>
+        void AddTestResults(List<BookScore[]> scores, int settingVersion);
+
+        int[] GetUsersWithComputedSimilarity(int settingVersion);
         List<int> GetUsersIdsWithNorMoreRatedBooks(int n);
-        List<SelectMutualBooks_Result> GetMutualBooksForUsers(int user1, int user2);
+      //  List<SelectMutualBooks_Result> GetMutualBooksForUsers(int user1, int user2);
 
         /// <summary>
         ///     Adds a similar users.
@@ -39,7 +48,7 @@ namespace DataAccess
         /// <returns>
         ///     The average rate for all books.
         /// </returns>
-        double GetAverageRateForAllBooks();
+  //      double GetAverageRateForAllBooks();
 
         /// <summary>
         ///     Gets average rate for given book.
@@ -48,7 +57,7 @@ namespace DataAccess
         /// <returns>
         ///     The average rate for given book.
         /// </returns>
-        double GetAverageRateForGivenBook(string isbn);
+    //    double GetAverageRateForGivenBook(string isbn);
 
         /// <summary>
         ///     Gets average rate for user.
@@ -92,7 +101,7 @@ namespace DataAccess
         /// <returns>
         ///     An array of string.
         /// </returns>
-        string[] GetBooksIdsSameForBothUsers(int user1, int user2);
+  //      string[] GetBooksIdsSameForBothUsers(int user1, int user2);
 
         /// <summary>
         ///     Gets books identifiers unique for second user.
@@ -102,7 +111,7 @@ namespace DataAccess
         /// <returns>
         ///     An array of string.
         /// </returns>
-        string[] GetBooksIdsUniqueForSecondUser(int user1, int user2);
+      //  string[] GetBooksIdsUniqueForSecondUser(int user1, int user2);
 
         /// <summary>
         ///     Gets books rated by user.
@@ -111,7 +120,7 @@ namespace DataAccess
         /// <returns>
         ///     An array of book.
         /// </returns>
-        Book[] GetBooksRatedByUser(User user);
+   //     Book[] GetBooksRatedByUser(User user);
 
         /// <summary>
         ///     Gets books rates by user identifier.
@@ -147,7 +156,7 @@ namespace DataAccess
         /// <returns>
         ///     The user.
         /// </returns>
-        User GetUser(int UserId);
+     //   User GetUser(int UserId);
 
         /// <summary>
         ///     Gets the users.
@@ -158,7 +167,7 @@ namespace DataAccess
         /// <returns>
         ///     The users.
         /// </returns>
-        List<User> GetUsers(int[] UserIds);
+   //     List<User> GetUsers(int[] UserIds);
 
         /// <summary>
         ///     Gets users neighbors.
@@ -178,7 +187,7 @@ namespace DataAccess
         /// <returns>
         ///     An array of book score.
         /// </returns>
-        BookScore[] GetUsersRatesForGivenIsbnList(string[] isbn, int userId);
+   //     BookScore[] GetUsersRatesForGivenIsbnList(string[] isbn, int userId);
 
         /// <summary>
         ///     Gets the users with nor more rated books in this collection.

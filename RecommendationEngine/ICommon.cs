@@ -7,18 +7,20 @@ namespace RecommendationEngine
     public interface ICommon
     {
         List<int> SelectUsersIdsToCompareWith(int userId);
-        List<User> GetUsersWhoRatedAtLeastNBooks();
 
-        List<User> GetUsersWhoReadMostPopularBooks(int numOfBooks);
+        void PersistTestResults(List<BookScore[]> books, int settingsId);
+        int[] GetUsersWhoRatedAtLeastNBooks();
+        int[] GetListOfUsersWithComputedSimilarityForGivenSettings(int settingId);
+        int[] GetUsersWhoReadMostPopularBooks(int numOfBooks);
         double? GetAverageRateForUser(int userId);
 
-        List<UsersSimilarity> GetSimilarUsersFromDb(int userId);
+        List<UsersSimilarity> GetSimilarUsersFromDb(int userId, int settingsVersion);
 
         string[] GetUniqueBooksIds(List<UsersSimilarity> similarUsers);
 
-        UsersSimilarity IdentifyUniqueAndMutualBooksForUsers(int userId, int comparedUserId);
+    //    UsersSimilarity IdentifyUniqueAndMutualBooksForUsers(int userId, int comparedUserId);
 
-        UsersSimilarity IdentifyUniqueAndMutualBooksForUsers(UserSimilar userSimilarFromDb);
+      //  UsersSimilarity IdentifyUniqueAndMutualBooksForUsers(UserSimilar userSimilarFromDb);
 
         UsersSimilarity GetMutualAndUniqueBooks(int userId, int comparedUserId);
         void PersistRecommendedBooksInDb(BookScore[] books, int userId);
@@ -27,9 +29,9 @@ namespace RecommendationEngine
 
         string[] PreparePotentialBooksToRecommendation(List<UsersSimilarity> similarUsers, int userId);
 
-        List<User> SelectUsersToCompareWith(int userId);
+      //  List<User> SelectUsersToCompareWith(int userId);
 
-        List<User> SelectUsersToCompareWith(int userId, int[] usersToCompareIds);
+    //    List<User> SelectUsersToCompareWith(int userId, int[] usersToCompareIds);
 
         BookScore[] GetAllBooksUserReadWithScores(int userId);
 

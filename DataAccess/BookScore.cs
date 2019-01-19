@@ -31,5 +31,6 @@
         /// </value>
 
         public double PredictedRate { get; set; }
+        public int UserId { get; set; }
     }
 }

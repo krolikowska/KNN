@@ -48,15 +48,15 @@ namespace RecommendationEngine
         /// <returns>
         ///     A List<User>
         /// </returns>
-        public List<User> SelectUsersToCompareWith(int userId, int[] usersToCompareIds)
-        {
-            var user = _context.GetUser(userId);
-            var usersToCompare = _context.GetUsers(usersToCompareIds);
-            if (user == null || usersToCompare == null || usersToCompare.Count == 0) return null;
+        //public List<User> SelectUsersToCompareWith(int userId, int[] usersToCompareIds)
+        //{
+        //    var user = _context.GetUser(userId);
+        //    var usersToCompare = _context.GetUsers(usersToCompareIds);
+        //    if (user == null || usersToCompare == null || usersToCompare.Count == 0) return null;
 
-            usersToCompare.Remove(user); //we won't compare with itself
-            return usersToCompare;
-        }
+        //    usersToCompare.Remove(user); //we won't compare with itself
+        //    return usersToCompare;
+        //}
 
         /// <summary>
         ///     Gets unique books identifiers.
@@ -84,14 +84,14 @@ namespace RecommendationEngine
         /// <returns>
         ///     An UsersSimilarity.
         /// </returns>
-        public UsersSimilarity IdentifyUniqueAndMutualBooksForUsers(UserSimilar userSimilarFromDb)
-        {
-            var similarity =
-                IdentifyUniqueAndMutualBooksForUsers(userSimilarFromDb.UserId, userSimilarFromDb.NeighborId);
-            similarity.Similarity = userSimilarFromDb.Similarity;
+        //public UsersSimilarity IdentifyUniqueAndMutualBooksForUsers(UserSimilar userSimilarFromDb)
+        //{
+        //    var similarity =
+        //        IdentifyUniqueAndMutualBooksForUsers(userSimilarFromDb.UserId, userSimilarFromDb.NeighborId);
+        //    similarity.Similarity = userSimilarFromDb.Similarity;
 
-            return similarity;
-        }
+        //    return similarity;
+        //}
 
         /// <summary>
         ///     Identifief unique and mutual books for users.
@@ -100,26 +100,36 @@ namespace RecommendationEngine
         /// <param name="comparedUserId">
         ///     Identifier for the compared user.
         /// </param>
+        /// <param name="userSimilarFromDb"></param>
         /// <returns>
         ///     An UsersSimilarity.
         /// </returns>
-        public UsersSimilarity IdentifyUniqueAndMutualBooksForUsers(int userId, int comparedUserId)
+        //public UsersSimilarity IdentifyUniqueAndMutualBooksForUsers(int userId, int comparedUserId)
+        //{
+        //    var mutualBooksIds = _context.GetBooksIdsSameForBothUsers(userId, comparedUserId);
+        //    if (mutualBooksIds.Length == 0) return null;
+        //    var uniqueBooks = _context.GetBooksIdsUniqueForSecondUser(userId, comparedUserId);
+
+
+        //    var similarity = new UsersSimilarity
+        //    {
+        //        BooksUniqueForComparedUser = _context.GetUsersRatesForGivenIsbnList(uniqueBooks, comparedUserId),
+        //        UserRatesForMutualBooks = _context.GetUsersRatesForGivenIsbnList(mutualBooksIds, userId),
+        //        ComparedUserRatesForMutualBooks =
+        //            _context.GetUsersRatesForGivenIsbnList(mutualBooksIds, comparedUserId),
+        //        UserId = userId,
+        //        ComparedUserId = comparedUserId,
+        //        AverageScoreForComparedUser = _context.GetAverageRateForUser(comparedUserId),
+        //    };
+        //    return similarity;
+        //}
+
+        public UsersSimilarity GetMutualAndUniqueBooks(UserSimilar userSimilarFromDb)
         {
-            var mutualBooksIds = _context.GetBooksIdsSameForBothUsers(userId, comparedUserId);
-            if (mutualBooksIds.Length == 0) return null;
-            var uniqueBooks = _context.GetBooksIdsUniqueForSecondUser(userId, comparedUserId);
+            var similarity =
+                GetMutualAndUniqueBooks(userSimilarFromDb.UserId, userSimilarFromDb.NeighborId);
+            similarity.Similarity = userSimilarFromDb.Similarity;
 
-
-            var similarity = new UsersSimilarity
-            {
-                BooksUniqueForComparedUser = _context.GetUsersRatesForGivenIsbnList(uniqueBooks, comparedUserId),
-                UserRatesForMutualBooks = _context.GetUsersRatesForGivenIsbnList(mutualBooksIds, userId),
-                ComparedUserRatesForMutualBooks =
-                    _context.GetUsersRatesForGivenIsbnList(mutualBooksIds, comparedUserId),
-                UserId = userId,
-                ComparedUserId = comparedUserId,
-                AverageScoreForComparedUser = _context.GetAverageRateForUser(comparedUserId),
-            };
             return similarity;
         }
 
@@ -155,15 +165,15 @@ namespace RecommendationEngine
         /// <returns>
         ///     A List<User>
         /// </returns>
-        public List<User> SelectUsersToCompareWith(int userId)
-        {
-            var user = _context.GetUser(userId);
-            var usersToCompare = _context.GetUsersWithNorMoreRatedBooks(_minNumberOfBooksUserRated).ToList();
-            if (user == null || usersToCompare.Count == 0) return null;
+        //public List<User> SelectUsersToCompareWith(int userId)
+        //{
+        //    var user = _context.GetUser(userId);
+        //    var usersToCompare = _context.GetUsersWithNorMoreRatedBooks(_minNumberOfBooksUserRated).ToList();
+        //    if (user == null || usersToCompare.Count == 0) return null;
 
-            usersToCompare.Remove(user); //we won't compare with itself
-            return usersToCompare;
-        }
+        //    usersToCompare.Remove(user); //we won't compare with itself
+        //    return usersToCompare;
+        //}
 
         public List<int> SelectUsersIdsToCompareWith(int userId)
         {
@@ -174,33 +184,37 @@ namespace RecommendationEngine
             return usersToCompare;
         }
 
-        public List<User> GetUsersWhoRatedAtLeastNBooks()
+        public int[] GetUsersWhoRatedAtLeastNBooks()
         {
-           return _context.GetUsersWithNorMoreRatedBooks(_minNumberOfBooksUserRated).ToList();
+           return _context.GetUsersIdsWithNorMoreRatedBooks(_minNumberOfBooksUserRated).ToArray();
         }
-
-       
 
         /// <summary>
         ///     Gets similar users from database.
         /// </summary>
         /// <param name="userId">Identifier for the user.</param>
+        /// <param name="settingsVersion"></param>
         /// <returns>
         ///     The similar users from database.
         /// </returns>
-        public List<UsersSimilarity> GetSimilarUsersFromDb(int userId)
+        public List<UsersSimilarity> GetSimilarUsersFromDb(int userId, int settingsVersion)
         {
-            var similarUsersFromDb = _context.GetUsersNeighbors(userId, _settingsVersion);
+            var similarUsersFromDb = _context.GetUsersNeighbors(userId, settingsVersion);
             var similarUsers = new List<UsersSimilarity>();
 
             foreach (var similarity in similarUsersFromDb)
             {
-                var temp = IdentifyUniqueAndMutualBooksForUsers(similarity);
+                var temp = GetMutualAndUniqueBooks(similarity);
                 if (temp != null)
                     similarUsers.Add(temp);
             }
 
             return similarUsers;
+        }
+
+        public int[] GetListOfUsersWithComputedSimilarityForGivenSettings(int settingId)
+        {
+            return _context.GetUsersWithComputedSimilarity(_settingsVersion);
         }
 
         /// <summary>
@@ -211,6 +225,11 @@ namespace RecommendationEngine
         public void PersistRecommendedBooksInDb(BookScore[] books, int userId)
         {
             _context.AddRecommendedBooksForUser(books, userId);
+        }
+
+        public void PersistTestResults(List<BookScore[]> books, int settingsId)
+        {
+            _context.AddTestResults(books, settingsId);
         }
 
         /// <summary>
@@ -264,13 +283,12 @@ namespace RecommendationEngine
             return _context.GetBooksRatesByUserId(userId);
         }
 
-        public List<User> GetUsersWhoReadMostPopularBooks(int numberOfUsers)
+        public int[] GetUsersWhoReadMostPopularBooks(int numberOfUsers)
         {
             var mostPopularBooks = _context.GetBooksIdsRatedByAtLeastNUsers(numberOfUsers)
                                            .Take(_bookPopularity)
                                            .ToArray();
-            var users = _context.GetUsersWhoRatedAnyOfGivenBooks(mostPopularBooks);
-            return _context.GetUsers(users);
+            return _context.GetUsersWhoRatedAnyOfGivenBooks(mostPopularBooks);
         }
 
         public void SaveTimesInCsvFile(List<Tuple<int, long>> elapsedTimes, string path)

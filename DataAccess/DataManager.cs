@@ -40,7 +40,10 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                return db.BooksRatings.AsNoTracking().Select(x => x.User).Where(x => userIds.Contains(x.UserId)).ToList();
+                return db.BooksRatings.AsNoTracking()
+                         .Select(x => x.User)
+                         .Where(x => userIds.Contains(x.UserId))
+                         .ToList();
             }
         }
 
@@ -102,8 +105,9 @@ namespace DataAccess
                              .Where(x => x.User.BooksRatings.Count >= n)
                              .Select(x => x.UserId)
                              .Distinct()
-                             .OrderBy(x => x).ToList();
-                             
+                             .OrderBy(x => x)
+                             .ToList();
+
                 return temp;
             }
         }
@@ -188,9 +192,10 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                return db.BooksRatings.AsNoTracking().Where(x => x.UserId == userId)
+                return db.BooksRatings.AsNoTracking()
+                         .Where(x => x.UserId == userId)
                          .AsEnumerable()
-                         .Select(x => new BookScore {BookId = x.ISBN, Rate = x.Rate})
+                         .Select(x => new BookScore {BookId = x.ISBN, Rate = x.Rate, UserId = userId})
                          .ToArray();
             }
         }
@@ -258,7 +263,7 @@ namespace DataAccess
             {
                 var books1 = db.BooksRatings.AsNoTracking().Where(x => x.UserId == user1).Select(x => x.ISBN);
                 var books2 = db.BooksRatings.AsNoTracking().Where(x => x.UserId == user2).Select(x => x.ISBN);
-                
+
                 return books1.Intersect(books2).Distinct().ToArray();
             }
         }
@@ -280,8 +285,6 @@ namespace DataAccess
                 return books2.Except(books1).Distinct().ToArray();
             }
         }
-
-       
 
         /// <summary>
         ///     Gets users rates for given <paramref name="isbn" /> list.
@@ -313,6 +316,7 @@ namespace DataAccess
             using (var db = new BooksRecomendationsEntities())
             {
                 if (similarUsers.Count > 0)
+
                     db.UserSimilars.AddRange(similarUsers.Select(x => MapToUserSimilarDataModel(x, settingsVersion)));
                 db.SaveChanges();
             }
@@ -333,9 +337,34 @@ namespace DataAccess
 
                 if (books != null)
                     db.BookRecomendations.AddRange(books.Select(x => MapToBookRecommendationModel(x, userId)));
-                
+
                 db.SaveChanges();
             }
+        }
+
+        public void AddTestResults(List<BookScore[]> scores, int settingVersion)
+        {
+            using (var db = new BooksRecomendationsEntities())
+            {
+                var result = new List<Test>();
+                foreach (var score in scores)
+                    result.AddRange(score.Select(bookScore => MapScoreToTest(bookScore, settingVersion)));
+
+                db.Tests.AddRange(result);
+                db.SaveChanges();
+            }
+        }
+
+        private Test MapScoreToTest(BookScore score, int settingVersion)
+        {
+            return new Test
+            {
+                ActualRate = score.Rate,
+                BookId = score.BookId,
+                ParametersSet = settingVersion,
+                UserId = score.UserId,
+                PredictedRate = score.PredictedRate
+            };
         }
 
         /// <summary>
@@ -375,6 +404,20 @@ namespace DataAccess
             }
         }
 
+        public int[] GetUsersWithComputedSimilarity(int settingVersion)
+        {
+            using (var db = new BooksRecomendationsEntities())
+            {
+                var z = db.UserSimilars.AsNoTracking()
+                          .Where(x => x.ParametersSet == settingVersion)
+                          .Select(x => x.UserId)
+                          .Distinct()
+                          .ToArray();
+
+                return z;
+            }
+        }
+
         /// <summary>
         ///     Saves the parameters set.
         /// </summary>
@@ -387,6 +430,26 @@ namespace DataAccess
                 if (temp == null) db.Parameters.Add(parameter);
 
                 db.SaveChanges();
+            }
+        }
+
+        public Parameter GetParameters(int settingsVersion)
+        {
+            using (var db = new BooksRecomendationsEntities())
+            {
+
+                var settings = db.Parameters.Where(x => x.Id == settingsVersion).ToList();
+                return settings.Select(x =>
+                                   new Parameter
+                                   {
+                                       BookPopularity = x.BookPopularity,
+                                       DistanceSimilarityType = x.DistanceSimilarityType,
+                                       DistanceType = x.DistanceType,
+                                       Id = x.Id,
+                                       Kneigbors = x.Kneigbors,
+                                       NumberOfBooksEachUserRated = x.NumberOfBooksEachUserRated
+                                   })
+                    .FirstOrDefault();
             }
         }
 
@@ -439,20 +502,22 @@ namespace DataAccess
         /// </returns>
         private static UserSimilar MapToUserSimilarDataModel(UsersSimilarity user, int settingsVersion)
         {
-            return new UserSimilar
+            var s = new UserSimilar
             {
                 UserId = user.UserId,
                 NeighborId = user.ComparedUserId,
                 Similarity = user.Similarity,
                 ParametersSet = settingsVersion
             };
+
+            return s;
         }
 
         public List<SelectMutualBooks_Result> GetMutualBooksForUsers(int user1, int user2)
         {
             using (var db = new BooksRecomendationsEntities())
             {
-               return db.SelectMutualBooks(user1, user2).ToList();
+                return db.SelectMutualBooks(user1, user2).ToList();
             }
         }
     }

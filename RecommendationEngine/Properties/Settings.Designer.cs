@@ -45,7 +45,7 @@ namespace RecommendationEngine.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
         public int MinNumberOfBooksEachUserRated {
             get {
                 return ((int)(this["MinNumberOfBooksEachUserRated"]));
@@ -54,7 +54,7 @@ namespace RecommendationEngine.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("PearsonSimilarity")]
+        [global::System.Configuration.DefaultSettingValueAttribute("CosineSimilarity")]
         public global::RecommendationEngine.DistanceSimilarityEnum SimilarityDistance {
             get {
                 return ((global::RecommendationEngine.DistanceSimilarityEnum)(this["SimilarityDistance"]));
@@ -81,7 +81,7 @@ namespace RecommendationEngine.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
         public int Id {
             get {
                 return ((int)(this["Id"]));

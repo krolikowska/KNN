@@ -87,9 +87,14 @@ namespace RecommendationEngine
             //foreach (var u in similarUsers)
             //    u.AverageScoreForComparedUser = _common.GetAverageRateForUser(u.ComparedUserId);
 
-            for (var i = 0; i < booksIds.Length; i++)
+            foreach (var id in booksIds)
             {
-                var bookScore = EvaluateScore(similarUsers, booksIds[i], meanRateForUser);
+                var temp = new BookScore
+                {
+                    UserId = userId,
+                    BookId = id
+                };
+                var bookScore = EvaluateScore(similarUsers, temp, meanRateForUser);
                 if (bookScore != null)
                     recommendedBooks.Add(bookScore);
             }
@@ -106,13 +111,13 @@ namespace RecommendationEngine
         /// <returns>
         ///     A BookScore.
         /// </returns>
-        public BookScore PredictScoreForGivenBook(List<UsersSimilarity> similarUsers, int userId, string bookId)
-        {
-            if (similarUsers == null || similarUsers.Count == 0) return null;
-            var meanRateForUser = _common.GetAverageRateForUser(userId) ?? 0;
+        //public BookScore PredictScoreForGivenBook(List<UsersSimilarity> similarUsers, int userId, string bookId)
+        //{
+        //    if (similarUsers == null || similarUsers.Count == 0) return null;
+        //    var meanRateForUser = _common.GetAverageRateForUser(userId) ?? 0;
 
-            return EvaluateScore(similarUsers, bookId, meanRateForUser);
-        }
+        //    return EvaluateScore(similarUsers, bookId, meanRateForUser, userId);
+        //}
 
         public List<UsersSimilarity> CombineUniqueAndMutualBooksForUser(List<UsersSimilarity> similarUsers)
         {
@@ -130,15 +135,14 @@ namespace RecommendationEngine
             var predictedScores = new BookScore[booksUserRead.Length];
             var meanRateForUser = _common.GetAverageRateForUser(userId) ?? 0;
 
-            // we want to predict scores event for books that user already rated
+            // we want to predict scores even for books that user already rated
             similarUsers = CombineUniqueAndMutualBooksForUser(similarUsers);
             for (var i = 0; i < booksUserRead.Length; i++)
             {
                 var book = booksUserRead[i];
-                predictedScores[i] = EvaluateScore(similarUsers, book.BookId, meanRateForUser);
-                predictedScores[i].Rate = book.Rate;
+                predictedScores[i] = EvaluateScore(similarUsers, book, meanRateForUser);
             }
-
+            
             return predictedScores;
         }
 
@@ -146,12 +150,12 @@ namespace RecommendationEngine
         ///     Evaluate score.
         /// </summary>
         /// <param name="similarUsers">The similar users.</param>
-        /// <param name="bookId">Identifier for the book.</param>
+        /// <param name="bookScore"></param>
         /// <param name="meanRateForUser">The mean rate for user.</param>
         /// <returns>
         ///     A BookScore.
         /// </returns>
-        private BookScore EvaluateScore(IEnumerable<UsersSimilarity> similarUsers, string bookId,
+        private BookScore EvaluateScore(IEnumerable<UsersSimilarity> similarUsers, BookScore bookScore,
             double meanRateForUser)
         {
             var scoreNumerator = 0.0;
@@ -160,13 +164,11 @@ namespace RecommendationEngine
            
                 foreach (var u in similarUsers)
                 {
-                    var book = u.BooksUniqueForComparedUser.FirstOrDefault(x => x.BookId == bookId);
+                    var book = u.BooksUniqueForComparedUser.FirstOrDefault(x => x.BookId == bookScore.BookId);
 
-                    if (book != null && u.AverageScoreForComparedUser != null && u.Similarity != null)
-                    {
-                        scoreNumerator += (book.Rate - u.AverageScoreForComparedUser.Value) * u.Similarity.Value;
-                        scoreDenominator += Math.Abs(u.Similarity.Value);
-                    }
+                    if (book == null || u.AverageScoreForComparedUser == null || u.Similarity == null) continue;
+                    scoreNumerator += (book.Rate - u.AverageScoreForComparedUser.Value) * u.Similarity.Value;
+                    scoreDenominator += Math.Abs(u.Similarity.Value);
                 }
 
                 if (scoreDenominator != 0)
@@ -174,13 +176,8 @@ namespace RecommendationEngine
                     rate = scoreNumerator / scoreDenominator + meanRateForUser;
                 }
 
-                var recommendedBook = new BookScore
-                {
-                    BookId = bookId,
-                    PredictedRate = Math.Round(rate, 2)
-                };
-
-                return recommendedBook;
+                bookScore.PredictedRate = Math.Round(rate, 2);
+                return bookScore;
             
         }
     }

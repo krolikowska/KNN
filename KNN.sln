@@ -56,8 +56,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {14D4B959-E708-4635-B4BD-0FBC00B2DCA6}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {14D4B959-E708-4635-B4BD-0FBC00B2DCA6}
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
