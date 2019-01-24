@@ -9,12 +9,8 @@ using CsvHelper;
 
 namespace RecommendationEngine
 {
-    /// <summary>
-    ///     A common.
-    /// </summary>
     public class Common : ICommon
     {
-        // ReSharper disable once PrivateMembersMustHaveComments
         private readonly int _minNumberOfBooksUserRated;
         private readonly int _minNumOfUsersWhoRatedBook;
         private readonly int _bookPopularity;
@@ -22,13 +18,6 @@ namespace RecommendationEngine
 
         private readonly IDataManager _context;
 
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="settings">
-        ///     Options for controlling the operation.
-        /// </param>
-        /// <param name="dataManager">Manager for data.</param>
         public Common(ISettings settings, IDataManager dataManager)
         {
             _context = dataManager;
@@ -38,33 +27,6 @@ namespace RecommendationEngine
             _settingsVersion = settings.Id;
         }
 
-        /// <summary>
-        ///     Select users to compare with.
-        /// </summary>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <param name="usersToCompareIds">
-        ///     <see cref="List`1" /> of identifiers for the users to compares.
-        /// </param>
-        /// <returns>
-        ///     A List<User>
-        /// </returns>
-        //public List<User> SelectUsersToCompareWith(int userId, int[] usersToCompareIds)
-        //{
-        //    var user = _context.GetUser(userId);
-        //    var usersToCompare = _context.GetUsers(usersToCompareIds);
-        //    if (user == null || usersToCompare == null || usersToCompare.Count == 0) return null;
-
-        //    usersToCompare.Remove(user); //we won't compare with itself
-        //    return usersToCompare;
-        //}
-
-        /// <summary>
-        ///     Gets unique books identifiers.
-        /// </summary>
-        /// <param name="similarUsers">The similar users.</param>
-        /// <returns>
-        ///     An array of string.
-        /// </returns>
         public string[] GetUniqueBooksIds(List<UsersSimilarity> similarUsers)
         {
             // unique list of books we recommend
@@ -74,55 +36,6 @@ namespace RecommendationEngine
                    .Distinct()
                    .ToArray();
         }
-
-        /// <summary>
-        ///     Identify unique and mutual books for users.
-        /// </summary>
-        /// <param name="userSimilarFromDb">
-        ///     The user similar from database.
-        /// </param>
-        /// <returns>
-        ///     An UsersSimilarity.
-        /// </returns>
-        //public UsersSimilarity IdentifyUniqueAndMutualBooksForUsers(UserSimilar userSimilarFromDb)
-        //{
-        //    var similarity =
-        //        IdentifyUniqueAndMutualBooksForUsers(userSimilarFromDb.UserId, userSimilarFromDb.NeighborId);
-        //    similarity.Similarity = userSimilarFromDb.Similarity;
-
-        //    return similarity;
-        //}
-
-        /// <summary>
-        ///     Identifief unique and mutual books for users.
-        /// </summary>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <param name="comparedUserId">
-        ///     Identifier for the compared user.
-        /// </param>
-        /// <param name="userSimilarFromDb"></param>
-        /// <returns>
-        ///     An UsersSimilarity.
-        /// </returns>
-        //public UsersSimilarity IdentifyUniqueAndMutualBooksForUsers(int userId, int comparedUserId)
-        //{
-        //    var mutualBooksIds = _context.GetBooksIdsSameForBothUsers(userId, comparedUserId);
-        //    if (mutualBooksIds.Length == 0) return null;
-        //    var uniqueBooks = _context.GetBooksIdsUniqueForSecondUser(userId, comparedUserId);
-
-
-        //    var similarity = new UsersSimilarity
-        //    {
-        //        BooksUniqueForComparedUser = _context.GetUsersRatesForGivenIsbnList(uniqueBooks, comparedUserId),
-        //        UserRatesForMutualBooks = _context.GetUsersRatesForGivenIsbnList(mutualBooksIds, userId),
-        //        ComparedUserRatesForMutualBooks =
-        //            _context.GetUsersRatesForGivenIsbnList(mutualBooksIds, comparedUserId),
-        //        UserId = userId,
-        //        ComparedUserId = comparedUserId,
-        //        AverageScoreForComparedUser = _context.GetAverageRateForUser(comparedUserId),
-        //    };
-        //    return similarity;
-        //}
 
         public UsersSimilarity GetMutualAndUniqueBooks(UserSimilar userSimilarFromDb)
         {
@@ -158,23 +71,6 @@ namespace RecommendationEngine
             return similarity;
         }
 
-        /// <summary>
-        ///     Select users to compare with.
-        /// </summary>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>
-        ///     A List<User>
-        /// </returns>
-        //public List<User> SelectUsersToCompareWith(int userId)
-        //{
-        //    var user = _context.GetUser(userId);
-        //    var usersToCompare = _context.GetUsersWithNorMoreRatedBooks(_minNumberOfBooksUserRated).ToList();
-        //    if (user == null || usersToCompare.Count == 0) return null;
-
-        //    usersToCompare.Remove(user); //we won't compare with itself
-        //    return usersToCompare;
-        //}
-
         public List<int> SelectUsersIdsToCompareWith(int userId)
         {
             var usersToCompare = _context.GetUsersIdsWithNorMoreRatedBooks(_minNumberOfBooksUserRated);
@@ -189,14 +85,6 @@ namespace RecommendationEngine
            return _context.GetUsersIdsWithNorMoreRatedBooks(_minNumberOfBooksUserRated).ToArray();
         }
 
-        /// <summary>
-        ///     Gets similar users from database.
-        /// </summary>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <param name="settingsVersion"></param>
-        /// <returns>
-        ///     The similar users from database.
-        /// </returns>
         public List<UsersSimilarity> GetSimilarUsersFromDb(int userId, int settingsVersion)
         {
             var similarUsersFromDb = _context.GetUsersNeighbors(userId, settingsVersion);
@@ -212,44 +100,14 @@ namespace RecommendationEngine
             return similarUsers;
         }
 
-        public int[] GetListOfUsersWithComputedSimilarityForGivenSettings(int settingId)
-        {
-            return _context.GetUsersWithComputedSimilarity(_settingsVersion);
-        }
+        public int[] GetListOfUsersWithComputedSimilarityForGivenSettings(int settingId) => _context.GetUsersWithComputedSimilarity(_settingsVersion);
 
-        /// <summary>
-        ///     method for adding neighbors.
-        /// </summary>
-        /// <param name="books">The books.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        public void PersistRecommendedBooksInDb(BookScore[] books, int userId)
-        {
-            _context.AddRecommendedBooksForUser(books, userId);
-        }
+        public void PersistRecommendedBooksInDb(BookScore[] books, int userId) => _context.AddRecommendedBooksForUser(books, userId);
 
-        public void PersistTestResults(List<BookScore[]> books, int settingsId)
-        {
-            _context.AddTestResults(books, settingsId);
-        }
+        public void PersistTestResults(List<BookScore[]> books, int settingsId) => _context.AddTestResults(books, settingsId);
 
-        /// <summary>
-        ///     Persist similar users in database.
-        /// </summary>
-        /// <param name="neighbors">The neighbors.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        public void PersistSimilarUsersInDb(List<UsersSimilarity> neighbors, int userId)
-        {
-            _context.AddSimilarUsers(neighbors, userId, _settingsVersion);
-        }
+        public void PersistSimilarUsersInDb(List<List<UsersSimilarity>> neighbors) => _context.AddSimilarUsers(neighbors, _settingsVersion);
 
-        /// <summary>
-        ///     Prepare potential books to recommendation.
-        /// </summary>
-        /// <param name="similarUsers">The similar users.</param>
-        /// <param name="userId"></param>
-        /// <returns>
-        ///     A string[].
-        /// </returns>
         public string[] PreparePotentialBooksToRecommendation(List<UsersSimilarity> similarUsers, int userId)
         {
             var booksIds = GetUniqueBooksIds(similarUsers); // we get list contains all books read by neighbors,
@@ -259,25 +117,11 @@ namespace RecommendationEngine
                                                            _minNumOfUsersWhoRatedBook);
         }
 
-        /// <summary>
-        ///     Gets average rate for user.
-        /// </summary>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>
-        ///     The average rate for user.
-        /// </returns>
         public double? GetAverageRateForUser(int userId)
         {
             return _context.GetAverageRateForUser(userId);
         }
 
-        /// <summary>
-        ///     Gets all books user read with scores.
-        /// </summary>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>
-        ///     An array of book score.
-        /// </returns>
         public BookScore[] GetAllBooksUserReadWithScores(int userId)
         {
             return _context.GetBooksRatesByUserId(userId);

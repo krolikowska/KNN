@@ -6,33 +6,11 @@ using RecommendationEngine.Properties;
 
 namespace RecommendationEngine
 {
-    /// <summary>
-    ///     A book recommender.
-    /// </summary>
     public class BookRecommender : IBookRecommender
     {
-        /// <summary>
-        ///     The common.
-        /// </summary>
         private readonly ICommon _common;
-
-        /// <summary>
-        ///     Number of books to recommends.
-        /// </summary>
         private readonly int _numbOfBooksToRecommend;
-
-        /// <summary>
-        ///     Options for controlling the operation.
-        /// </summary>
         private readonly ISettings _settings;
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="settings">
-        ///     Options for controlling the operation.
-        /// </param>
-        /// <param name="common">The common.</param>
         public BookRecommender(ISettings settings, ICommon common)
         {
             _settings = settings;
@@ -40,14 +18,6 @@ namespace RecommendationEngine
             _numbOfBooksToRecommend = settings.NumOfBooksToRecommend;
         }
 
-        /// <summary>
-        ///     Gets recommended books.
-        /// </summary>
-        /// <param name="similarUsers">The similar users.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>
-        ///     An array of book score.
-        /// </returns>
         public BookScore[] GetRecommendedBooks(List<UsersSimilarity> similarUsers, int userId)
         {
             var booksIds = _common.PreparePotentialBooksToRecommendation(similarUsers, userId);
@@ -57,17 +27,6 @@ namespace RecommendationEngine
             return result.ToArray();
         }
 
-        /// <summary>
-        ///     Predict score.
-        /// </summary>
-        /// <param name="similarUsers">The similar users.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <param name="booksIds">
-        ///     <see cref="List`1" /> of identifiers for the books.
-        /// </param>
-        /// <returns>
-        ///     A SortedSet<BookScore>
-        /// </returns>
         public SortedSet<BookScore> GetAllRecommendedBooksForUser(List<UsersSimilarity> similarUsers, int userId,
             string[] booksIds)
         {
@@ -80,12 +39,8 @@ namespace RecommendationEngine
                 return null;
             }
 
-            ;
 
             var meanRateForUser = _common.GetAverageRateForUser(userId) ?? 0;
-
-            //foreach (var u in similarUsers)
-            //    u.AverageScoreForComparedUser = _common.GetAverageRateForUser(u.ComparedUserId);
 
             foreach (var id in booksIds)
             {
@@ -101,23 +56,6 @@ namespace RecommendationEngine
 
             return recommendedBooks;
         }
-
-        /// <summary>
-        ///     Predict score for given book.
-        /// </summary>
-        /// <param name="similarUsers">The similar users.</param>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <param name="bookId">Identifier for the book.</param>
-        /// <returns>
-        ///     A BookScore.
-        /// </returns>
-        //public BookScore PredictScoreForGivenBook(List<UsersSimilarity> similarUsers, int userId, string bookId)
-        //{
-        //    if (similarUsers == null || similarUsers.Count == 0) return null;
-        //    var meanRateForUser = _common.GetAverageRateForUser(userId) ?? 0;
-
-        //    return EvaluateScore(similarUsers, bookId, meanRateForUser, userId);
-        //}
 
         public List<UsersSimilarity> CombineUniqueAndMutualBooksForUser(List<UsersSimilarity> similarUsers)
         {
@@ -146,15 +84,6 @@ namespace RecommendationEngine
             return predictedScores;
         }
 
-        /// <summary>
-        ///     Evaluate score.
-        /// </summary>
-        /// <param name="similarUsers">The similar users.</param>
-        /// <param name="bookScore"></param>
-        /// <param name="meanRateForUser">The mean rate for user.</param>
-        /// <returns>
-        ///     A BookScore.
-        /// </returns>
         private BookScore EvaluateScore(IEnumerable<UsersSimilarity> similarUsers, BookScore bookScore,
             double meanRateForUser)
         {

@@ -9,43 +9,14 @@ using RecommendationEngine.Properties;
 
 namespace RecommendationEngine
 {
-    /// <summary>
-    ///     A nearest neighbors search.
-    /// </summary>
+    
     public class NearestNeighborsSearch : INearestNeighborsSearch
     {
-        /// <summary>
-        ///     <see cref="Type" /> of the distance.
-        /// </summary>
         private readonly DistanceSimilarityEnum _distanceType;
-
-        /// <summary>
-        ///     The neighbors.
-        /// </summary>
-        private readonly int _kNeighbors;
-
-        /// <summary>
-        ///     The minimum number of users who rated book.
-        /// </summary>
+private readonly int _kNeighbors;
         private readonly int _minNumOfUsersWhoRatedBook;
-
-        /// <summary>
-        ///     The common.
-        /// </summary>
         private readonly ICommon _common;
-
-        /// <summary>
-        ///     Options for controlling the operation.
-        /// </summary>
         private readonly ISettings _settings;
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="settings">
-        ///     Options for controlling the operation.
-        /// </param>
-        /// <param name="common">The common.</param>
         public NearestNeighborsSearch(ISettings settings, ICommon common)
         {
             _common = common;
@@ -55,20 +26,9 @@ namespace RecommendationEngine
             _minNumOfUsersWhoRatedBook = _settings.BookPopularityAmongUsers;
         }
 
-        /// <summary>
-        ///     Calculates the similarity between users.
-        /// </summary>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <param name="comparedUserId">
-        ///     Identifier for the compared user.
-        /// </param>
-        /// <returns>
-        ///     The calculated similarity between users.
-        /// </returns>
         public UsersSimilarity ComputeSimilarityBetweenUsers(int userId, int comparedUserId)
         {
             var similarity = _common.GetMutualAndUniqueBooks(userId, comparedUserId);
-          //  var similarity = _common.IdentifyUniqueAndMutualBooksForUsers(userId, comparedUserId);
             
             if (similarity == null) return null;
 
@@ -93,19 +53,11 @@ namespace RecommendationEngine
             similarity.SimilarityType = (int) _distanceType;
             return similarity;
         }
-
-        /// <summary>
-        ///     Gets nearest neighbors.
-        /// </summary>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <returns>
-        ///     The nearest neighbors.
-        /// </returns>
         public List<UsersSimilarity> GetNearestNeighbors(int userId)
         {
             var usersToCompare = _common.SelectUsersIdsToCompareWith(userId);
             var neighbors = GetNearestNeighbors(userId, usersToCompare);
-            _common.PersistSimilarUsersInDb(neighbors, userId);
+            
             return neighbors;
         }
 
@@ -114,14 +66,6 @@ namespace RecommendationEngine
             return _common.GetSimilarUsersFromDb(userId, settingsVersion);
         }
 
-        /// <summary>
-        ///     Gets nearest neighbors.
-        /// </summary>
-        /// <param name="userId">Identifier for the user.</param>
-        /// <param name="usersToCompare">The users to compare.</param>
-        /// <returns>
-        ///     The nearest neighbors.
-        /// </returns>
         public List<UsersSimilarity> GetNearestNeighbors(int userId, List<int> usersToCompare)
         {
             var comparer = DetermineComparerFromDistanceType();
@@ -130,7 +74,6 @@ namespace RecommendationEngine
             var sortedList = new SortedSet<UsersSimilarity>(comparer);
             var _lock = new object();
 
-         //   var opt = new ParallelOptions {MaxDegreeOfParallelism = 4};
             Parallel.ForEach(usersToCompare,
                              comparedUser =>
                              {
@@ -143,25 +86,10 @@ namespace RecommendationEngine
                                  }
                              });
 
-            //foreach (var u in usersToCompare)
-            //{
-            //    if (u != null)
-            //    {
-            //        similarity = ComputeSimilarityBetweenUsers(userId, u.UserId);
-
-            //        if (similarity?.Similarity != null) sortedList.Add(similarity);
-            //    }
-            //}
 
             return sortedList.Count == 0 ? null : sortedList.Take(_kNeighbors).ToList();
         }
 
-        /// <summary>
-        ///     Determine comparer from distance type.
-        /// </summary>
-        /// <returns>
-        ///     An IComparer<UsersSimilarity>
-        /// </returns>
         public IComparer<UsersSimilarity> DetermineComparerFromDistanceType()
         {
             if (_distanceType == DistanceSimilarityEnum.PearsonSimilarity) return new UsersSimilarityReverseComparer();
@@ -169,14 +97,6 @@ namespace RecommendationEngine
             return new UsersSimilarityComparer();
         }
 
-        /// <summary>
-        ///     Gets cosine distance.
-        /// </summary>
-        /// <param name="user1rates">The user 1rates.</param>
-        /// <param name="user2rates">The user 2rates.</param>
-        /// <returns>
-        ///     The cosine distance.
-        /// </returns>
         public double GetCosineDistance(BookScore[] user1rates, BookScore[] user2rates)
         {
             var dotProduct = 0.0;
@@ -193,14 +113,6 @@ namespace RecommendationEngine
             return dotProduct / (Math.Sqrt(l2norm1) * Math.Sqrt(l2norm2));
         }
 
-        /// <summary>
-        ///     Gets Pearson correlation similarity.
-        /// </summary>
-        /// <param name="user1rates">The user 1rates.</param>
-        /// <param name="user2rates">The user 2rates.</param>
-        /// <returns>
-        ///     The pearson correlation similarity.
-        /// </returns>
         public double GetPearsonCorrelationSimilarity(BookScore[] user1rates, BookScore[] user2rates)
         {
             var rAvg1 = user1rates.Average(x => x.Rate);

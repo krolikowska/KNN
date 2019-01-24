@@ -29,11 +29,12 @@ namespace TestingConsoleApp
 
             string path = @"..\..\ElapsedTime.csv";
             bool error = false;
+            bool fromDbFlag = false;
 
-        //    var users = FindNearestNeighborsForUsers(settings, context, runner, path, error);
-         //   runner.EvaluateScores(settingId);
+               var users1 = FindNearestNeighborsForUsers(settings, context, runner, path, error, 4);
+            var users = FindNearestNeighborsForUsersWhoReadMostPopularBooks(settings, context, runner, path, error, settings.BookPopularityAmongUsers,settings.Id);
 
-            Parallel.Invoke(() => runner.EvaluateScores(par.Id));
+            runner.InvokeScoreEvaluation(fromDbFlag, settings.Id, path, users);
 
         }
 

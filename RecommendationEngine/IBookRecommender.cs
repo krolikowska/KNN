@@ -7,8 +7,6 @@ namespace RecommendationEngine
     {
         BookScore[] GetRecommendedBooks(List<UsersSimilarity> similarUsers, int userId);
 
-       
-
         BookScore[] PredictScoreForAllUsersBooks(List<UsersSimilarity> similarUsers, int userId);
     }
 }
