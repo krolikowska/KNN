@@ -73,7 +73,7 @@ namespace RecommendationEngine
                                         }
                                         catch (Exception e)
                                         {
-                                            Console.WriteLine($"Exception for {user}");
+                                            Console.WriteLine($"Exception for {user} exception: {e.Message}");
                                             errorIds.Add(user);
                                         }
 

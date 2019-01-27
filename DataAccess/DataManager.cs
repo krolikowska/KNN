@@ -9,6 +9,7 @@ namespace DataAccess
  
     public class DataManager : IDataManager
     {
+
         public List<BooksRating> GetBookRatingsForUsersWhoRatedGivenBook(string isbn)
         {
             using (var db = new BooksRecomendationsEntities())

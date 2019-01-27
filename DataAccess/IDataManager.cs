@@ -4,6 +4,8 @@ namespace DataAccess
 {
     public interface IDataManager
     {
+
+        BookScore[] GetBooksRatesByUserId(int userId);
         void AddRecommendedBooksForUser(BookScore[] books, int userId);
 
         Parameter GetParameters(int settingsVersion);
