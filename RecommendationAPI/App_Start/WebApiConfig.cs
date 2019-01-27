@@ -19,7 +19,6 @@ namespace RecommendationAPI
 
             container.Register<IBookRecommender, BookRecommender>(Lifestyle.Scoped);
             container.Register<INearestNeighborsSearch, NearestNeighborsSearch>(Lifestyle.Scoped);
-            container.Register<ICommon, Common>(Lifestyle.Scoped);
             container.Register<ISettings, Settings>(Lifestyle.Scoped);
             container.Register<IDataManager, DataManager>(Lifestyle.Scoped);
             container.Register<IUserBasedCollaborativeFiltering, UserBasedCollaborativeFiltering>(Lifestyle.Scoped);

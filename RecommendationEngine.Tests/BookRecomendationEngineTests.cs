@@ -14,10 +14,10 @@ namespace RecommendationEngine.Tests
     {
         public BookRecomendationEngineTests()
         {
-            _settings = new Settings();
-            var s = new Common(_settings, _dm);
-            _dm = Substitute.For<DataManager>();
-            _sut = new NearestNeighborsSearch(_settings, s);
+            //_settings = new Settings();
+            //var s = new Common(_settings, _dm);
+            //_dm = Substitute.For<DataManager>();
+            //_sut = new NearestNeighborsSearch(_settings, s);
         }
 
         private readonly NearestNeighborsSearch _sut;
@@ -113,28 +113,28 @@ namespace RecommendationEngine.Tests
                 new BookScore {BookId = "16", Rate = 10}
             };
 
-            var sim = new UsersSimilarity
-            {
-                UserId = 1,
-                ComparedUserId = 2,
-                Similarity = 1,
-                ComparedUserRatesForMutualBooks = mutual,
-                BooksUniqueForComparedUser = unique
-            };
+            //var sim = new UsersSimilarity
+            //{
+            //    UserId = 1,
+            //    ComparedUserId = 2,
+            //    Similarity = 1,
+            //    ComparedUserRatesForMutualBooks = mutual,
+            //    BooksUniqueForComparedUser = unique
+            //};
 
-            var sim2 = new UsersSimilarity
-            {
-                UserId = 1,
-                ComparedUserId = 3,
-                Similarity = 1,
-                ComparedUserRatesForMutualBooks = mutual,
-                BooksUniqueForComparedUser = unique2
-            };
+            //var sim2 = new UsersSimilarity
+            //{
+            //    UserId = 1,
+            //    ComparedUserId = 3,
+            //    Similarity = 1,
+            //    ComparedUserRatesForMutualBooks = mutual,
+            //    BooksUniqueForComparedUser = unique2
+            //};
 
-            var userSimList = new List<UsersSimilarity>
-            {
-                sim, sim2
-            };
+            //var userSimList = new List<UsersSimilarity>
+            //{
+            //    sim, sim2
+            //};
             //var actual = _sut.GetUniqueBooksIds(userSimList);
             //actual.Count().ShouldBe(2);
         }
@@ -165,27 +165,27 @@ namespace RecommendationEngine.Tests
                 new BookScore {BookId = "16", Rate = 10}
             };
 
-            var sim = new UsersSimilarity
-            {
-                UserId = 1,
-                ComparedUserId = 2,
-                Similarity = 1,
-                ComparedUserRatesForMutualBooks = mutual,
-                BooksUniqueForComparedUser = unique
-            };
+            //var sim = new UsersSimilarity
+            //{
+            //    UserId = 1,
+            //    ComparedUserId = 2,
+            //    Similarity = 1,
+            //    ComparedUserRatesForMutualBooks = mutual,
+            //    BooksUniqueForComparedUser = unique
+            //};
 
-            var sim2 = new UsersSimilarity
-            {
-                UserId = 1,
-                ComparedUserId = 3,
-                Similarity = 1,
-                ComparedUserRatesForMutualBooks = mutual,
-                BooksUniqueForComparedUser = unique2
-            };
-            var userSimList = new List<UsersSimilarity>
-            {
-                sim, sim2
-            };
+            //var sim2 = new UsersSimilarity
+            //{
+            //    UserId = 1,
+            //    ComparedUserId = 3,
+            //    Similarity = 1,
+            //    ComparedUserRatesForMutualBooks = mutual,
+            //    BooksUniqueForComparedUser = unique2
+            //};
+            //var userSimList = new List<UsersSimilarity>
+            //{
+            //    sim, sim2
+            //};
 
             Book[] books1 =
             {
@@ -397,24 +397,6 @@ namespace RecommendationEngine.Tests
             //5. "pearson similiarity";
         }
 
-        [Fact]
-        public void testSimpleQueue()
-        {
-            Comparison<double> comparison = CompareBySmt;
-
-            var recommendedBooks = new SimplePriorityQueue<string, double>(comparison);
-            recommendedBooks.Enqueue("test1", 1.0);
-            recommendedBooks.Enqueue("test2", 2.0);
-            recommendedBooks.Enqueue("test3", -1.0);
-            recommendedBooks.Enqueue("test4", 1.5);
-
-            var z = new List<string>
-            {
-                recommendedBooks.Dequeue(),
-                recommendedBooks.Dequeue(),
-                recommendedBooks.Dequeue(),
-                recommendedBooks.Dequeue()
-            };
-        }
+      
     }
 }

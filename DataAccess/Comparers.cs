@@ -39,7 +39,7 @@ namespace DataAccess
     {
         public bool Equals(BookScore x, BookScore y)
         {
-           return x.BookId == y.BookId;
+            return x.BookId == y.BookId;
         }
 
         public int GetHashCode(BookScore obj)

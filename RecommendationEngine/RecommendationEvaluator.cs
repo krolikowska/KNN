@@ -6,22 +6,20 @@ namespace RecommendationEngine
 {
     public class RecommendationEvaluator
     {
-       
         public double EvaluatePredictionsUsingMAE(BookScore[] scores)
         {
-           var actualRates = scores.Select(s => (int)s.Rate).ToArray();
-           var predictedRates = scores.Select(s => s.PredictedRate).ToArray();
+            var actualRates = scores.Select(s => (int) s.Rate).ToArray();
+            var predictedRates = scores.Select(s => s.PredictedRate).ToArray();
 
-           return ComputeMeanAbsoluteError(predictedRates, actualRates);
+            return ComputeMeanAbsoluteError(predictedRates, actualRates);
         }
 
         public double EvaluatePredictionsUsingRSME(BookScore[] scores)
         {
-            var actualRates = scores.Select(s => (int)s.Rate).ToArray();
+            var actualRates = scores.Select(s => (int) s.Rate).ToArray();
             var predictedRates = scores.Select(s => s.PredictedRate).ToArray();
 
             return ComputeMeanAbsoluteError(predictedRates, actualRates);
-
         }
 
         public double ComputeMeanAbsoluteError(double[] predictedRates, int[] actualRates)

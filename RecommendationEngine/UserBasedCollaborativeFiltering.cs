@@ -2,34 +2,32 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Mime;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DataAccess;
-using NUnit.Framework;
-using RecommendationEngine.Properties;
 
 namespace RecommendationEngine
 {
     public class UserBasedCollaborativeFiltering : IUserBasedCollaborativeFiltering
     {
-       
         private readonly INearestNeighborsSearch _nearestNeighbors;
         private readonly IBookRecommender _recommender;
-        private readonly ICommon _common;
+        private readonly CollaborativeFilteringHelpers _helpers;
+        private readonly IUsersSelector _selector;
 
         public UserBasedCollaborativeFiltering(IBookRecommender recommender, INearestNeighborsSearch nearestNeighbors,
-            ICommon common)
+            CollaborativeFilteringHelpers helpers, IUsersSelector selector)
         {
             _recommender = recommender;
             _nearestNeighbors = nearestNeighbors;
-            _common = common;
+            _helpers = helpers;
+            _selector = selector;
         }
 
         public BookScore[] RecommendBooksForUser(int userId)
         {
-            var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId);
+            var users = _selector.SelectUsersIdsToCompareWith(userId);
+            var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId, users);
 
             return _recommender.GetRecommendedBooks(similarUsers, userId);
         }
@@ -38,15 +36,12 @@ namespace RecommendationEngine
         {
             if (fromDbFlag)
             {
-                users = _common.GetListOfUsersWithComputedSimilarityForGivenSettings(settingId);
-               
+                users = _selector.GetListOfUsersWithComputedSimilarityForGivenSettings(settingId);
             }
 
             var times = EvaluateScores(settingId, users);
-            _common.SaveTimesInCsvFile(times, path);
-            
+            _helpers.SaveTimesInCsvFile(times, path);
         }
-
 
         public List<Tuple<int, long>> EvaluateScores(int settingId, int[] users)
         {
@@ -54,7 +49,6 @@ namespace RecommendationEngine
             var stopWatch = new Stopwatch();
             var stopwatchValues = new List<Tuple<int, long>>();
             var errorIds = new List<int>();
-            
 
             var i = 1;
 
@@ -63,7 +57,7 @@ namespace RecommendationEngine
             var sum = 0L;
             Parallel.ForEach(users, user =>
                                     {
-                                        PrintStats(i, users.Length, sum, user);
+                                        _helpers.PrintStats(i, users.Length, sum, user);
 
                                         stopWatch.Start();
                                         try
@@ -89,38 +83,19 @@ namespace RecommendationEngine
                                     });
 
             Console.WriteLine($"Writing to database");
-            _common.PersistTestResults(scores, settingId);
-            PrintErrors(errorIds);
+            _helpers.PersistTestResults(scores, settingId);
+            _helpers.PrintErrors(errorIds);
 
             return stopwatchValues;
         }
 
-        private static void PrintStats(double i, int length, long sum, int user)
-        {
-            var _ = new object();
-            Monitor.Enter(_);
-            var progress = i / length * 100.0;
-            var average = sum / (i * 1000.0);
-            var speed = average == 0 ? 0 : 1 / average;
-            var remainingTime = (length - i) * speed / 1000.0;
-
-            Console.BackgroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine($"{i} UserId {user}");
-            Console.WriteLine($"Current progress is {progress:F}%");
-
-            Console.BackgroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine($"Evaluated in average\t{average:F}\tseconds");
-            Console.WriteLine($"Remaining time \t{remainingTime:F}\tminutes");
-            Monitor.Exit(_);
-        }
-
         public BookScore[] PredictScoresForBooksUserAlreadyRead(int userId, int settingsId)
         {
-            var similarUsers = _nearestNeighbors.GetNearestNeighborsFromDb(userId, settingsId);
+            var similarUsers = _selector.GetSimilarUsersFromDb(userId, settingsId);
             return _recommender.PredictScoreForAllUsersBooks(similarUsers, userId);
         }
 
-        private List<Tuple<int, long>> GetNearestNeighborsWithElapsedTime(IReadOnlyCollection<int> userIds)
+        private void GetNearestNeighborsWithElapsedTime(List<int> userIds, string path, int settingsId)
         {
             var stopWatch = new Stopwatch();
             var stopwatchValues = new List<Tuple<int, long>>();
@@ -130,74 +105,68 @@ namespace RecommendationEngine
             var sum = 0L;
 
             Console.WriteLine($"Computing neighbors for userIds {userIds.Count}");
-
+            var _ = new object();
+            
             Parallel.ForEach(userIds, user =>
                                       {
                                           Interlocked.Increment(ref i);
-                                          PrintStats(i, userIds.Count, sum, user);
+                                          _helpers.PrintStats(i, userIds.Count, sum, user);
                                           stopWatch.Start();
 
                                           try
                                           {
-                                             var temp = _nearestNeighbors.GetNearestNeighbors(user);
-                                             neighbors.Add(temp);
+                                              lock (_)
+                                              {
+                                                  var temp = _nearestNeighbors.GetNearestNeighbors(user, userIds);
+                                                  neighbors.Add(temp);
+                                              }
                                           }
                                           catch (Exception e)
                                           {
-                                              Console.WriteLine($"Exception for {user}");
+                                              Console.WriteLine($"Exception for {user}, trace: {e.StackTrace}");
                                               errorIds.Add(user);
                                           }
 
                                           stopWatch.Stop();
                                           var elapsed = stopWatch.Elapsed;
                                           sum += elapsed.Milliseconds;
-                                         
+
                                           stopwatchValues.Add(new Tuple<int, long>(user, elapsed.Milliseconds));
 
                                           Console.BackgroundColor = ConsoleColor.Black;
                                           Console.Clear();
                                       });
 
-            PrintErrors(errorIds);
-            _common.PersistSimilarUsersInDb(neighbors);
-            return stopwatchValues;
+            _helpers.PrintErrors(errorIds);
+            _helpers.PersistSimilarUsersInDb(neighbors, settingsId);
+            _helpers.SaveTimesInCsvFile(stopwatchValues, path);
         }
 
-        private static void PrintErrors(List<int> errorIds)
+        public List<int> InvokeNearestNeighbors(string path, bool error, int settingId)
         {
-            Console.WriteLine($"Finished. There was {errorIds.Count} exceptions");
-            foreach (var e in errorIds)
-            {
-                Console.WriteLine($"Exception for user {e}");
-            }
-        }
-
-        public int[] InvokeNearestNeighbors(string path, bool error, int settingId)
-        {
-            var users = _common.GetUsersWhoRatedAtLeastNBooks();
+            var users = _selector.GetUsersWhoRatedAtLeastNBooks();
             if (error)
             {
-                var computedUsers = _common.GetListOfUsersWithComputedSimilarityForGivenSettings(settingId);
-                users = users.Except(computedUsers).ToArray();
+                var computedUsers = _selector.GetListOfUsersWithComputedSimilarityForGivenSettings(settingId);
+                users = users.Except(computedUsers).ToList();
             }
 
-            var times = GetNearestNeighborsWithElapsedTime(users);
-            _common.SaveTimesInCsvFile(times, path);
+            GetNearestNeighborsWithElapsedTime(users, path, settingId);
             return users;
         }
 
-        public int[] InvokeNearestNeighborsForUsersWhoRatedPopularBooks(int numUsersWhoReadBook, string path,
+        public List<int> InvokeNearestNeighborsForUsersWhoRatedPopularBooks(int numUsersWhoReadBook, string path,
             bool error, int settingId)
         {
-            var users = _common.GetUsersWhoReadMostPopularBooks(numUsersWhoReadBook);
+            var users = _selector.GetUsersWhoReadMostPopularBooks(numUsersWhoReadBook);
             if (error)
             {
-                var computedUsers = _common.GetListOfUsersWithComputedSimilarityForGivenSettings(settingId);
-                users = users.Except(computedUsers).ToArray();
+                var computedUsers = _selector.GetListOfUsersWithComputedSimilarityForGivenSettings(settingId);
+                users = users.Except(computedUsers).ToList();
             }
 
-            var times = GetNearestNeighborsWithElapsedTime(users);
-            _common.SaveTimesInCsvFile(times, path);
+            GetNearestNeighborsWithElapsedTime(users, path, settingId);
+
             return users;
         }
     }

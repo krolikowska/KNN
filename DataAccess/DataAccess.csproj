@@ -83,7 +83,6 @@
     <Compile Include="Comparers.cs" />
     <Compile Include="DataManager.cs" />
     <Compile Include="DataManagerHelpers.cs" />
-    <Compile Include="DistanceSimilarityMetricsEnum.cs" />
     <Compile Include="DistanceSimilarityType.cs">
       <DependentUpon>BookRecomendationModel.tt</DependentUpon>
     </Compile>

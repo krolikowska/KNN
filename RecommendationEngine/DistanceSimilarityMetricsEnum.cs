@@ -1,4 +1,4 @@
-﻿namespace DataAccess
+﻿namespace RecommendationEngine
 {
     public enum DistanceSimilarityEnum
     {

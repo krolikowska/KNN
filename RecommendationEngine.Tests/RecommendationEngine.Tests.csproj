@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BookRecomendationEngineTests.cs" />
+    <Compile Include="NearestNeighborsSearchTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecommendationEvaluatorTests.cs" />
   </ItemGroup>

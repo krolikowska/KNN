@@ -4,7 +4,6 @@ namespace DataAccess
 {
     public interface IDataManager
     {
-
         BookScore[] GetBooksRatesByUserId(int userId);
         void AddRecommendedBooksForUser(BookScore[] books, int userId);
 
@@ -12,8 +11,8 @@ namespace DataAccess
         void AddTestResults(List<BookScore[]> scores, int settingVersion);
 
         int[] GetUsersWithComputedSimilarity(int settingVersion);
-        List<int> GetUsersIdsWithNorMoreRatedBooks(int n);
-      void AddSimilarUsers(List<List<UsersSimilarity>> similarUsers, int settingsVersion);
+        List<int> GetUserIdsWithNorMoreRatedBooks(int n);
+        void AddSimilarUsers(List<List<UsersSimilarity>> similarUsers, int settingsVersion);
 
         User[] GetAllUsersWithRatedBooks();
 
@@ -29,11 +28,8 @@ namespace DataAccess
 
         List<UserSimilar> GetUsersNeighbors(int userId, int settingsVersion);
 
-       // IEnumerable<User> GetUsersWithNorMoreRatedBooks(int n);
-
         void SaveParametersSet(Parameter parameter);
-        List<BooksRating> GetBookRatingsForUsersWhoRatedGivenBook(string isbn);
 
-        int[] GetUsersWhoRatedAnyOfGivenBooks(string[] bookIds);
+        List<int> GetUsersWhoRatedAnyOfGivenBooks(string[] bookIds);
     }
 }

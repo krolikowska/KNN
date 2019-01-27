@@ -29,13 +29,11 @@ namespace DataAccess
             }
         }
 
-  
         public void AddUsers(int[] userIds)
         {
             foreach (var u in userIds) AddUser(u);
         }
 
-    
         public void AddBooks(string[] isbn)
         {
             using (var context = new BooksRecomendationsEntities())
@@ -60,7 +58,6 @@ namespace DataAccess
             }
         }
 
-       
         public void AddBooksRatings(BooksRating rate)
         {
             using (var context = new BooksRecomendationsEntities())

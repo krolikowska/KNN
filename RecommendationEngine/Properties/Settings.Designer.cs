@@ -45,7 +45,7 @@ namespace RecommendationEngine.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
         public int MinNumberOfBooksEachUserRated {
             get {
                 return ((int)(this["MinNumberOfBooksEachUserRated"]));
@@ -55,15 +55,15 @@ namespace RecommendationEngine.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("PearsonSimilarity")]
-        public global::DataAccess.DistanceSimilarityEnum SimilarityDistance {
+        public global::RecommendationEngine.DistanceSimilarityEnum SimilarityDistance {
             get {
-                return ((global::DataAccess.DistanceSimilarityEnum)(this["SimilarityDistance"]));
+                return ((global::RecommendationEngine.DistanceSimilarityEnum)(this["SimilarityDistance"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
         public int BookPopularityAmongUsers {
             get {
                 return ((int)(this["BookPopularityAmongUsers"]));
@@ -81,7 +81,7 @@ namespace RecommendationEngine.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
         public int Id {
             get {
                 return ((int)(this["Id"]));

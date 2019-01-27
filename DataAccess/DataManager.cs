@@ -6,18 +6,11 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace DataAccess
 {
- 
     public class DataManager : IDataManager
     {
+     
 
-        public List<BooksRating> GetBookRatingsForUsersWhoRatedGivenBook(string isbn)
-        {
-            using (var db = new BooksRecomendationsEntities())
-            {
-                return db.BooksRatings.Where(x => x.ISBN == isbn).ToList();
-            }
-        }
-public User[] GetAllUsersWithRatedBooks()
+        public User[] GetAllUsersWithRatedBooks()
         {
             using (var db = new BooksRecomendationsEntities())
             {
@@ -25,8 +18,7 @@ public User[] GetAllUsersWithRatedBooks()
             }
         }
 
-   
-        public List<int> GetUsersIdsWithNorMoreRatedBooks(int n)
+        public List<int> GetUserIdsWithNorMoreRatedBooks(int n)
         {
             using (var db = new BooksRecomendationsEntities())
             {
@@ -40,7 +32,8 @@ public User[] GetAllUsersWithRatedBooks()
                 return temp;
             }
         }
-public string[] GetBooksIdsRatedByAtLeastNUsers(string[] ids, int n)
+
+        public string[] GetBooksIdsRatedByAtLeastNUsers(string[] ids, int n)
         {
             using (var db = new BooksRecomendationsEntities())
             {
@@ -66,7 +59,6 @@ public string[] GetBooksIdsRatedByAtLeastNUsers(string[] ids, int n)
             }
         }
 
-
         public BookScore[] GetBooksRatesByUserId(int userId)
         {
             using (var db = new BooksRecomendationsEntities())
@@ -90,8 +82,6 @@ public string[] GetBooksIdsRatedByAtLeastNUsers(string[] ids, int n)
             }
         }
 
-
-  
         public void AddSimilarUsers(List<List<UsersSimilarity>> similarUsers, int settingsVersion)
         {
             using (var db = new BooksRecomendationsEntities())
@@ -99,13 +89,15 @@ public string[] GetBooksIdsRatedByAtLeastNUsers(string[] ids, int n)
                 var result = new List<UserSimilar>();
                 foreach (var similarUser in similarUsers)
                 {
-                    result.AddRange(similarUser.Select(x => MapToUserSimilarDataModel(x,settingsVersion)));
+                    result.AddRange(similarUser.Select(x => MapToUserSimilarDataModel(x, settingsVersion)));
                     db.UserSimilars.AddRange(result);
                 }
+
                 db.SaveChanges();
             }
         }
-public void AddRecommendedBooksForUser(BookScore[] books, int userId)
+
+        public void AddRecommendedBooksForUser(BookScore[] books, int userId)
         {
             using (var db = new BooksRecomendationsEntities())
             {
@@ -144,6 +136,7 @@ public void AddRecommendedBooksForUser(BookScore[] books, int userId)
                 PredictedRate = score.PredictedRate
             };
         }
+
         public Book[] GetRecommendedBooksForUser(int userId)
         {
             using (var db = new BooksRecomendationsEntities())
@@ -171,11 +164,10 @@ public void AddRecommendedBooksForUser(BookScore[] books, int userId)
             using (var db = new BooksRecomendationsEntities())
             {
                 return db.UserSimilars.AsNoTracking()
-                          .Where(x => x.ParametersSet == settingVersion)
-                          .Select(x => x.UserId)
-                          .Distinct()
-                          .ToArray();
-
+                         .Where(x => x.ParametersSet == settingVersion)
+                         .Select(x => x.UserId)
+                         .Distinct()
+                         .ToArray();
             }
         }
 
@@ -194,23 +186,22 @@ public void AddRecommendedBooksForUser(BookScore[] books, int userId)
         {
             using (var db = new BooksRecomendationsEntities())
             {
-
                 var settings = db.Parameters.Where(x => x.Id == settingsVersion).ToList();
                 return settings.Select(x =>
-                                   new Parameter
-                                   {
-                                       BookPopularity = x.BookPopularity,
-                                       DistanceSimilarityType = x.DistanceSimilarityType,
-                                       DistanceType = x.DistanceType,
-                                       Id = x.Id,
-                                       Kneigbors = x.Kneigbors,
-                                       NumberOfBooksEachUserRated = x.NumberOfBooksEachUserRated
-                                   })
-                    .FirstOrDefault();
+                                           new Parameter
+                                           {
+                                               BookPopularity = x.BookPopularity,
+                                               DistanceSimilarityType = x.DistanceSimilarityType,
+                                               DistanceType = x.DistanceType,
+                                               Id = x.Id,
+                                               Kneigbors = x.Kneigbors,
+                                               NumberOfBooksEachUserRated = x.NumberOfBooksEachUserRated
+                                           })
+                               .FirstOrDefault();
             }
         }
 
-        public int[] GetUsersWhoRatedAnyOfGivenBooks(string[] bookIds)
+        public List<int> GetUsersWhoRatedAnyOfGivenBooks(string[] bookIds)
         {
             using (var db = new BooksRecomendationsEntities())
             {
@@ -218,9 +209,10 @@ public void AddRecommendedBooksForUser(BookScore[] books, int userId)
                          .Where(x => bookIds.Contains(x.ISBN))
                          .Select(x => x.UserId)
                          .Distinct()
-                         .ToArray();
+                         .ToList();
             }
         }
+
         private static BookRecomendation MapToBookRecommendationModel(BookScore book, int userId)
         {
             return new BookRecomendation
@@ -240,9 +232,6 @@ public void AddRecommendedBooksForUser(BookScore[] books, int userId)
                 Similarity = user.Similarity,
                 ParametersSet = settingsVersion
             };
-
         }
-
-   
     }
 }
