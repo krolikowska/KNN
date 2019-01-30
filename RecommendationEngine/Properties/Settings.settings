@@ -20,7 +20,7 @@
       <Value Profile="(Default)">PearsonSimilarity</Value>
     </Setting>
     <Setting Name="BookPopularityAmongUsers" Type="System.Int32" Scope="Application">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">50</Value>
     </Setting>
     <Setting Name="NumOfBooksToRecommend" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">10</Value>

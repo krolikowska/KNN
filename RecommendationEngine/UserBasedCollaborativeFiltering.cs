@@ -110,8 +110,8 @@ namespace RecommendationEngine
             Parallel.ForEach(userIds, user =>
                                       {
                                           Interlocked.Increment(ref i);
-                                          _helpers.PrintStats(i, userIds.Count, sum, user);
                                           stopWatch.Start();
+                                          _helpers.PrintStats(i, userIds.Count, sum, user);
 
                                           try
                                           {
@@ -131,10 +131,11 @@ namespace RecommendationEngine
                                           var elapsed = stopWatch.Elapsed;
                                           sum += elapsed.Milliseconds;
 
-                                          stopwatchValues.Add(new Tuple<int, long>(user, elapsed.Milliseconds));
-
                                           Console.BackgroundColor = ConsoleColor.Black;
                                           Console.Clear();
+
+                                          stopwatchValues.Add(new Tuple<int, long>(user, elapsed.Milliseconds));
+
                                       });
 
             _helpers.PrintErrors(errorIds);
@@ -155,10 +156,10 @@ namespace RecommendationEngine
             return users;
         }
 
-        public List<int> InvokeNearestNeighborsForUsersWhoRatedPopularBooks(int numUsersWhoReadBook, string path,
+        public List<int> InvokeNearestNeighborsForUsersWhoRatedPopularBooks(int bookPopularity, string path,
             bool error, int settingId)
         {
-            var users = _selector.GetUsersWhoReadMostPopularBooks(numUsersWhoReadBook);
+            var users = _selector.GetUsersWhoReadMostPopularBooks(bookPopularity);
             if (error)
             {
                 var computedUsers = _selector.GetListOfUsersWithComputedSimilarityForGivenSettings(settingId);

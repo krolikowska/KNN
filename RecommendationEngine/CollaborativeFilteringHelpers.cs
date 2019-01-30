@@ -13,19 +13,32 @@ namespace RecommendationEngine
         private readonly IDataManager _context;
         private readonly ISettings _settings;
 
-        public CollaborativeFilteringHelpers(IDataManager dataManager, ISettings settings)
+        public CollaborativeFilteringHelpers(IDataManager context, ISettings settings)
         {
-            _context = dataManager;
+            _context = context;
             _settings = settings;
         }
 
         public Parameter GetParametersFromSettingsOrDb(bool parametersFromDb, int paramVersionInDb)
         {
-            var param = parametersFromDb
-                ? _context.GetParameters(paramVersionInDb)
-                : _settings.CreateParameterSetFromSettings();
+            Parameter param;
+            string text;
+            if (parametersFromDb)
+            {
+                text = "database";
+                param = _context.GetParameters(paramVersionInDb);
+            }
+            else
+            {
+               
+                text = "settings";
+                param = _settings.CreateParameterSetFromSettings();
+                _context.SaveParametersSet(param);
+            }
+           
+
             Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            var text = parametersFromDb ? $"database" : "settings";
+           
             Console.WriteLine($"Parameters from {text} with following setup:" +
                               $"\n Parameters ID:\t{param.Id}" +
                               $"\n Book popularity:\t{param.BookPopularity}" +
@@ -63,6 +76,7 @@ namespace RecommendationEngine
             Console.BackgroundColor = ConsoleColor.DarkRed;
             Console.WriteLine($"Evaluated in average\t{average:F}\tseconds");
             Console.WriteLine($"Remaining time \t{remainingTime:F}\tminutes");
+
             Monitor.Exit(_);
         }
 

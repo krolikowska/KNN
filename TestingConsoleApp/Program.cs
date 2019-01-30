@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Objects;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Channels;
-using System.Threading.Tasks;
 using DataAccess;
 using RecommendationEngine;
-using RecommendationEngine.Properties;
 
 namespace TestingConsoleApp
 {
     class Program
     {
+        const string path = @"..\..\ElapsedTime.csv";
+
         static void Main(string[] args)
         {
             var builder = new ContainerBuilder();
@@ -23,30 +17,23 @@ namespace TestingConsoleApp
             var runner = container.GetInstance<UserBasedCollaborativeFiltering>();
             var helper = container.GetInstance<CollaborativeFilteringHelpers>();
 
-
-            const string path = @"..\..\ElapsedTime.csv";
-
+            
            var parameters = helper.GetParametersFromSettingsOrDb( false, 2);
 
-          //  var users1 = FindNearestNeighborsForUsers(settings, context, runner, path, error, 4);
-      
-            //    runner.InvokeScoreEvaluation(fromDbFlag, settings.Id, path, users1);
-            
+           FindNearestNeighborsForUsersWhoReadMostPopularBooks(runner, false, parameters);
 
-        runner.InvokeNearestNeighborsForUsersWhoRatedPopularBooks(parameters.BookPopularity, path, false, parameters.Id);
 
         }
 
-        private static List<int> FindNearestNeighborsForUsers(ISettings settings, IDataManager context,
-            UserBasedCollaborativeFiltering runner, string path, bool error, int settingId)
+     
+
+        private static List<int> FindNearestNeighborsForUsers(UserBasedCollaborativeFiltering runner, bool error, Parameter parameters)
         {
-            var parameters = settings.CreateParameterSetFromSettings();
-            context.SaveParametersSet(parameters);
+           
             List<int> users;
             try
             {
-                Console.WriteLine($"Current setting num is {parameters.Id}");
-                users = runner.InvokeNearestNeighbors(path, error, settingId);
+                users = runner.InvokeNearestNeighbors(path, error, parameters.Id);
             }
             catch (Exception e)
             {
@@ -57,16 +44,12 @@ namespace TestingConsoleApp
             return users;
         }
 
-        private static List<int> FindNearestNeighborsForUsersWhoReadMostPopularBooks(ISettings settings, IDataManager context,
-            UserBasedCollaborativeFiltering runner, string path, bool error, int numUsersWhoReadBook, int settingId)
+        private static List<int> FindNearestNeighborsForUsersWhoReadMostPopularBooks(UserBasedCollaborativeFiltering runner, bool error, Parameter parameters)
         {
-            var parameters = settings.CreateParameterSetFromSettings();
-            context.SaveParametersSet(parameters);
-            List<int> users;
+           List<int> users;
             try
             {
-                Console.WriteLine($"Current setting num is {parameters.Id}");
-                users = runner.InvokeNearestNeighborsForUsersWhoRatedPopularBooks(numUsersWhoReadBook, path, error, settingId);
+                users = runner.InvokeNearestNeighborsForUsersWhoRatedPopularBooks(parameters.BookPopularity, path, error, parameters.Id);
             }
             catch (Exception e)
             {
