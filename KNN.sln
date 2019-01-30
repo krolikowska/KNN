@@ -17,11 +17,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecommendationEngine", "Rec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecommendationEngine.Tests", "RecommendationEngine.Tests\RecommendationEngine.Tests.csproj", "{374DCE48-945D-45AC-A69A-E6BF8F8F45BC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DF1DD930-7B88-417B-8CBD-9DB788F162E2}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\..\..\..\!inżynierka\Promocja czytelnictwa z.docx = ..\..\..\..\..\!inżynierka\Promocja czytelnictwa z.docx
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,8 +56,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {14D4B959-E708-4635-B4BD-0FBC00B2DCA6}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {14D4B959-E708-4635-B4BD-0FBC00B2DCA6}
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
