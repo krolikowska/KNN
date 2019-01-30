@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using DataAccess;
 using NSubstitute;
@@ -10,9 +9,9 @@ using Xunit;
 
 namespace RecommendationEngine.Tests
 {
-    public class BookRecomendationEngineTests
+    public class BookRecommendationEngineTests
     {
-        public BookRecomendationEngineTests()
+        public BookRecommendationEngineTests()
         {
             //_settings = new Settings();
             //var s = new Common(_settings, _dm);

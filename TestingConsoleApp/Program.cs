@@ -1,12 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Objects;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Channels;
-using System.Threading.Tasks;
 using DataAccess;
 using RecommendationEngine;
 using RecommendationEngine.Properties;
