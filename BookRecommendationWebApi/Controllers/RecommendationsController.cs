@@ -48,7 +48,7 @@ namespace RecommendationApi.Controllers
 
             try
             {
-                var booksForUser = _context.GetRecommendedBooksForUser(userId);
+                var booksForUser = _context.GetRecommendedBooksForUser(userId).ToArray();
                 if (booksForUser.Length == 0)
                 {
                     return Content<IEnumerable<BookModel>>(HttpStatusCode.NoContent, null);

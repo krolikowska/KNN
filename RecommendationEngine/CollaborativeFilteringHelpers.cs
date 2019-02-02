@@ -83,7 +83,7 @@ namespace RecommendationEngine
         public void PersistTestResults(List<BookScore[]> books, int settingsId) =>
             _context.AddTestResults(books, settingsId);
 
-        public void PersistSimilarUsersInDb(List<List<UsersSimilarity>> neighbors, int settingsId) =>
+        public void PersistSimilarUsersInDb(List<UsersSimilarity> neighbors, int settingsId) =>
             _context.AddSimilarUsers(neighbors, settingsId); //problem z tym jest
 
         public void SaveTimesInCsvFile(List<Tuple<int, long>> elapsedTimes, string path)

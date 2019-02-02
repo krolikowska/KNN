@@ -21,7 +21,7 @@ namespace RecommendationEngine.Tests
             double error)
         {
             var resut = _recommendationEvaluator.ComputeMeanAbsoluteError(predicted, actual);
-            resut.ShouldBe(error, 0.02);
+            resut.ShouldBe(error, 0.01);
         }
 
         [Theory]
@@ -32,7 +32,7 @@ namespace RecommendationEngine.Tests
             double error)
         {
             var resut = _recommendationEvaluator.ComputeRootMeanSquareError(predicted, actual);
-            resut.ShouldBe(error, 0.02);
+            resut.ShouldBe(error, 0.01);
         }
 
         [Fact]

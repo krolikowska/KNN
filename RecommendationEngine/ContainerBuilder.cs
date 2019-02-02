@@ -15,10 +15,11 @@ namespace RecommendationEngine
             container.Register<IUsersSelector, UsersSelector>();
             container.Register<ISettings, Settings>();
             container.Register<IDataManager, DataManager>();
+            container.Register<IUsersSimilarity, UsersSimilarity>();
             container.Register<IUserBasedCollaborativeFiltering, UserBasedCollaborativeFiltering>();
             container.Register<RecommendationEvaluator>();
             container.Register<CollaborativeFilteringHelpers>();
-            container.GetInstance<UsersSimilarity>();
+     //       container.GetInstance<UsersSimilarity>();
 
             return container;
         }

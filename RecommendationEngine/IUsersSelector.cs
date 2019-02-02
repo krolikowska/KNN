@@ -9,6 +9,6 @@ namespace RecommendationEngine
         List<int> GetUsersWhoRatedAtLeastNBooks();
         List<UsersSimilarity> GetSimilarUsersFromDb(int userId, int settingsVersion);
         int[] GetListOfUsersWithComputedSimilarityForGivenSettings(int settingId);
-        List<int> GetUsersWhoReadMostPopularBooks(int numberOfUsers);
+        List<int> GetMostActiveUsersWhoReadMostPopularBooks(int numberOfUsers, int noOfBooksUsersAtLeastRead);
     }
 }

@@ -8,8 +8,6 @@ namespace DataAccess
 {
     public class DataManager : IDataManager
     {
-     
-
         public User[] GetAllUsersWithRatedBooks()
         {
             using (var db = new BooksRecomendationsEntities())
@@ -82,17 +80,12 @@ namespace DataAccess
             }
         }
 
-        public void AddSimilarUsers(List<List<UsersSimilarity>> similarUsers, int settingsVersion)
+        public void AddSimilarUsers(List<UsersSimilarity> similarUsers, int settingsVersion)
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var result = new List<UserSimilar>();
-                foreach (var similarUser in similarUsers)
-                {
-                    result.AddRange(similarUser.Select(x => MapToUserSimilarDataModel(x, settingsVersion)));
-                    db.UserSimilars.AddRange(result);
-                }
-
+                var result = similarUsers.Select(x => MapToUserSimilarDataModel(x, settingsVersion));
+                db.UserSimilars.AddRange(result);
                 db.SaveChanges();
             }
         }
@@ -149,7 +142,7 @@ namespace DataAccess
             }
         }
 
-        public List<UserSimilar> GetUsersNeighbors(int userId, int settingsVersion)
+        public List<UserSimilar> GetUserNeighbors(int userId, int settingsVersion)
         {
             using (var db = new BooksRecomendationsEntities())
             {
@@ -159,7 +152,7 @@ namespace DataAccess
             }
         }
 
-        public int[] GetUsersWithComputedSimilarity(int settingVersion)
+        public int[] GetAllUsersWithComputedSimilarity(int settingVersion)
         {
             using (var db = new BooksRecomendationsEntities())
             {

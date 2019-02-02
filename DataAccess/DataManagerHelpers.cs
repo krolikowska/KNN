@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Migrations;
 using System.Linq;
+using NSubstitute;
 
 namespace DataAccess
 {
     public class DataManagerHelpers
     {
+        private readonly IDataManager _dm;
+
         public DataManagerHelpers()
         {
+            _dm = Substitute.For<IDataManager>();
             ClearDb();
         }
 
@@ -24,7 +29,7 @@ namespace DataAccess
                     Location = "City_" + userId
                 };
 
-                context.Users.Add(user);
+                context.Users.AddOrUpdate(user);
                 context.SaveChanges();
             }
         }
@@ -47,31 +52,48 @@ namespace DataAccess
                         ImageURLL = "big" + isbn[i],
                         ImageURLM = "medium" + isbn[i],
                         ImageURLS = "small" + isbn[i],
-                        BookAuthor = "Auhor_" + i,
+                        BookAuthor = "Author_" + i,
                         Publisher = "Editor",
                         YearOfPublication = 2012
                     };
-                    context.Books.Add(book);
+                    context.Books.AddOrUpdate(book);
                 }
 
                 context.SaveChanges();
             }
         }
 
-        public void AddBooksRatings(BooksRating rate)
+        public void AddParameters(int id)
         {
             using (var context = new BooksRecomendationsEntities())
             {
-                context.BooksRatings.Add(rate);
+                context.DistanceSimilarityTypes.AddOrUpdate(new DistanceSimilarityType {Id = 1});
+                context.Parameters.AddOrUpdate(new Parameter {Id = id, DistanceType = 1});
                 context.SaveChanges();
             }
         }
 
-        public List<BooksRating> GetBooksRatingsForGivenUser(int userId)
+        public void AddDistanceSimilarityTypes(int id)
         {
             using (var context = new BooksRecomendationsEntities())
             {
-                return context.BooksRatings.Where(x => x.UserId == userId).ToList();
+                context.DistanceSimilarityTypes.AddOrUpdate(new DistanceSimilarityType { Id = id });
+                context.SaveChanges();
+            }
+        }
+
+        public void AddBooksRatings(List<BooksRating> rates)
+        {
+            var users = rates.Select(x => x.UserId).Distinct().ToArray();
+            var books = rates.Select(x => x.ISBN).Distinct().ToArray();
+
+            AddUsers(users);
+            AddBooks(books);
+
+            using (var context = new BooksRecomendationsEntities())
+            {
+                context.BooksRatings.AddRange(rates);
+                context.SaveChanges();
             }
         }
 
@@ -83,10 +105,55 @@ namespace DataAccess
             }
         }
 
+        public List<UserSimilar> GetAllSimilarUsers(int parameterSetId)
+        {
+            using (var context = new BooksRecomendationsEntities())
+            {
+                return context.UserSimilars.Where(x => x.ParametersSet == parameterSetId).Distinct().ToList();
+            }
+        }
+
         public double RandomNumber(int seed)
         {
             var random = new Random(seed);
             return random.Next(0, 10);
+        }
+
+        public List<UsersSimilarity> CreateSimilarUsers(int userId, int[] userNeighbors, int parametersId)
+        {
+            AddUser(userId);
+            AddUsers(userNeighbors);
+            AddParameters(parametersId);
+
+            return userNeighbors
+                   .Select(neighbor => new UsersSimilarity(_dm) {UserId = userId, ComparedUserId = neighbor})
+                   .ToList();
+        }
+
+        public BookScore[] CreateBookScoreBasedOnUser(int userId, string[] isbn, IReadOnlyList<short> rates)
+        {
+            AddBooksRatedByUser(userId, isbn, rates);
+            return isbn.Select((id, i) => new BookScore
+                       {
+                           BookId = id,
+                           Rate = rates[i],
+                           PredictedRate = RandomNumber(i),
+                           UserId = userId
+                       })
+                       .ToArray();
+        }
+
+        public void AddBooksRatedByUser(int userId, IEnumerable<string> isbn, IReadOnlyList<short> rates)
+        {
+            var booksRatings = isbn.Select((id,
+                                               i) => new BooksRating
+                                               {
+                                                   ISBN = id,
+                                                   UserId = userId,
+                                                   Rate = rates[i]
+                                               })
+                                   .ToList();
+            AddBooksRatings(booksRatings);
         }
 
         public void ClearDb()
@@ -98,6 +165,8 @@ namespace DataAccess
                 context.BooksRatings.Clear();
                 context.Books.Clear();
                 context.Users.Clear();
+                context.Parameters.Clear();
+                context.DistanceSimilarityTypes.Clear();
                 context.SaveChanges();
             }
         }

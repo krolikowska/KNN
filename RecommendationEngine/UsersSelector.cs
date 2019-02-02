@@ -37,7 +37,7 @@ namespace RecommendationEngine
 
         public List<UsersSimilarity> GetSimilarUsersFromDb(int userId, int settingsVersion)
         {
-            var similarUsersFromDb = _context.GetUsersNeighbors(userId, settingsVersion);
+            var similarUsersFromDb = _context.GetUserNeighbors(userId, settingsVersion);
             var similarUsers = new List<UsersSimilarity>();
 
             foreach (var similarity in similarUsersFromDb)
@@ -51,14 +51,17 @@ namespace RecommendationEngine
         }
 
         public int[] GetListOfUsersWithComputedSimilarityForGivenSettings(int settingId) =>
-            _context.GetUsersWithComputedSimilarity(_settingsVersion);
+            _context.GetAllUsersWithComputedSimilarity(_settingsVersion);
 
-        public List<int> GetUsersWhoReadMostPopularBooks(int numberOfUsers)
+        public List<int> GetMostActiveUsersWhoReadMostPopularBooks(int booksReadByAtLeastNoOfUsers,
+            int noOfBooksUsersAtLeastRead)
         {
-            var mostPopularBooks = _context.GetBooksIdsRatedByAtLeastNUsers(numberOfUsers)
+            var mostPopularBooks = _context.GetBooksIdsRatedByAtLeastNUsers(booksReadByAtLeastNoOfUsers)
                                            .Take(_bookPopularity)
                                            .ToArray();
-            return _context.GetUsersWhoRatedAnyOfGivenBooks(mostPopularBooks);
+            var users = _context.GetUsersWhoRatedAnyOfGivenBooks(mostPopularBooks);
+            var mostActiveUsers = _context.GetUserIdsWithNorMoreRatedBooks(noOfBooksUsersAtLeastRead);
+            return users.Intersect(mostActiveUsers).ToList();
         }
 
         public UsersSimilarity GetMutualAndUniqueBooks(UserSimilar userSimilarFromDb)

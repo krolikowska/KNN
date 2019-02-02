@@ -101,7 +101,6 @@ namespace RecommendationEngine
             var stopWatch = new Stopwatch();
             var stopwatchValues = new List<Tuple<int, long>>();
             var errorIds = new List<int>();
-            var neighbors = new List<List<UsersSimilarity>>();
             var i = 0;
             var sum = 0L;
 
@@ -119,7 +118,7 @@ namespace RecommendationEngine
                                               lock (_)
                                               {
                                                   var temp = _nearestNeighbors.GetNearestNeighbors(user, userIds);
-                                                  neighbors.Add(temp);
+                                                  _helpers.PersistSimilarUsersInDb(temp, settingsId);
                                               }
                                           }
                                           catch (Exception e)
@@ -140,7 +139,6 @@ namespace RecommendationEngine
                                       });
 
             _helpers.PrintErrors(errorIds);
-            _helpers.PersistSimilarUsersInDb(neighbors, settingsId);
             _helpers.SaveTimesInCsvFile(stopwatchValues, path);
         }
 
@@ -160,7 +158,7 @@ namespace RecommendationEngine
         public List<int> InvokeNearestNeighborsForUsersWhoRatedPopularBooks(int bookPopularity, string path,
             bool error, int settingId)
         {
-            var users = _selector.GetUsersWhoReadMostPopularBooks(bookPopularity);
+            var users = _selector.GetMostActiveUsersWhoReadMostPopularBooks(bookPopularity, 5);
             if (error)
             {
                 var computedUsers = _selector.GetListOfUsersWithComputedSimilarityForGivenSettings(settingId);

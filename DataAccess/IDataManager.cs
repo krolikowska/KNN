@@ -10,10 +10,9 @@ namespace DataAccess
         Parameter GetParameters(int settingsVersion);
         void AddTestResults(List<BookScore[]> scores, int settingVersion);
 
-        int[] GetUsersWithComputedSimilarity(int settingVersion);
+        int[] GetAllUsersWithComputedSimilarity(int settingVersion);
         List<int> GetUserIdsWithNorMoreRatedBooks(int n);
-        void AddSimilarUsers(List<List<UsersSimilarity>> similarUsers, int settingsVersion);
-
+        void AddSimilarUsers(List<UsersSimilarity> similarUsers, int settingsVersion);
         User[] GetAllUsersWithRatedBooks();
 
         double? GetAverageRateForUser(int userId);
@@ -26,7 +25,7 @@ namespace DataAccess
 
         Book[] GetRecommendedBooksForUser(int userId);
 
-        List<UserSimilar> GetUsersNeighbors(int userId, int settingsVersion);
+        List<UserSimilar> GetUserNeighbors(int userId, int settingsVersion);
 
         void SaveParametersSet(Parameter parameter);
 

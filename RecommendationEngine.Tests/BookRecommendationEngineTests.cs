@@ -11,17 +11,16 @@ namespace RecommendationEngine.Tests
 {
     public class BookRecommendationEngineTests
     {
+        private readonly NearestNeighborsSearch _sut;
+        private readonly IDataManager _dm;
         public BookRecommendationEngineTests()
         {
-            //_settings = new Settings();
-            //var s = new Common(_settings, _dm);
-            //_dm = Substitute.For<DataManager>();
-            //_sut = new NearestNeighborsSearch(_settings, s);
+            var settings = Substitute.For<ISettings>();
+            _dm = Substitute.For<IDataManager>();
+            _sut = new NearestNeighborsSearch(settings);
         }
 
-        private readonly NearestNeighborsSearch _sut;
-        private readonly DataManager _dm;
-        private readonly Settings _settings;
+      
 
         public User CreateUser(Book[] books, short[] rates, int id)
         {

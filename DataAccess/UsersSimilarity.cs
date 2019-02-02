@@ -2,7 +2,7 @@
 
 namespace DataAccess
 {
-    public class UsersSimilarity
+    public class UsersSimilarity : IUsersSimilarity
     {
         public int UserId { get; set; }
 
@@ -19,6 +19,7 @@ namespace DataAccess
         public double? AverageScoreForComparedUser { get; set; }
 
         public int SimilarityType { get; set; }
+
         private static IDataManager _context;
 
         public UsersSimilarity(IDataManager context)
@@ -47,7 +48,6 @@ namespace DataAccess
                 ComparedUserId = comparedUserId,
                 AverageScoreForComparedUser = _context.GetAverageRateForUser(comparedUserId),
             };
-
         }
     }
 }
