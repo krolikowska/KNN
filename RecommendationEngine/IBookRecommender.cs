@@ -5,8 +5,8 @@ namespace RecommendationEngine
 {
     public interface IBookRecommender
     {
-        BookScore[] GetRecommendedBooks(List<UsersSimilarity> similarUsers, int userId);
-
-        BookScore[] PredictScoreForAllUsersBooks(List<UsersSimilarity> similarUsers, int userId);
+        BookScore[] GetRecommendedBooksWithScores(List<UsersSimilarity> similarUsers, int userId);
+        Book[] GetRecommendedBooks(List<UsersSimilarity> similarUsers, int userId);
+        BookScore[] PredictScoreForAllUsersBooks(List<UsersSimilarity> usersSimilarity, int userId);
     }
 }

@@ -25,6 +25,8 @@ namespace DataAccess
 
         Book[] GetRecommendedBooksForUser(int userId);
 
+        Book[] GetBooksFromGivenBookScores(IEnumerable<string> bookIds);
+
         List<UserSimilar> GetUserNeighbors(int userId, int settingsVersion);
 
         void SaveParametersSet(Parameter parameter);

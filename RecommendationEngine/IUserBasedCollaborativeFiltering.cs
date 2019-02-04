@@ -4,6 +4,6 @@ namespace RecommendationEngine
 {
     public interface IUserBasedCollaborativeFiltering
     {
-        BookScore[] RecommendBooksForUser(int userId);
+        Book[] RecommendBooksForUser(int userId);
     }
 }

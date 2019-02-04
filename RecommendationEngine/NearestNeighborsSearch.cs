@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using DataAccess;
 using RecommendationEngine.Properties;
@@ -13,9 +14,9 @@ namespace RecommendationEngine
 
         public NearestNeighborsSearch(ISettings settings)
         {
-            var settings1 = settings;
-            _distanceType = settings1.SimilarityDistance;
-            _kNeighbors = settings1.NumOfNeighbors;
+            //var settings1 = settings;
+            _distanceType = settings.SimilarityDistance;
+            _kNeighbors = settings.NumOfNeighbors;
         }
 
         public UsersSimilarity ComputeSimilarityBetweenUsers(int userId, int comparedUserId)
@@ -50,11 +51,10 @@ namespace RecommendationEngine
             var comparer = DetermineComparerFromDistanceType();
             Console.WriteLine($"get for {userId} with {usersToCompare.Count} users to compare");
             var sortedList = new SortedSet<UsersSimilarity>(comparer);
-
+          
             foreach (var comparedUser in usersToCompare)
             {
-
-                if(userId == comparedUser) continue;
+                if (userId == comparedUser) continue;
                 var similarity = ComputeSimilarityBetweenUsers(userId, comparedUser);
 
                 if (similarity?.Similarity != null) sortedList.Add(similarity);
@@ -65,7 +65,10 @@ namespace RecommendationEngine
 
         public IComparer<UsersSimilarity> DetermineComparerFromDistanceType()
         {
-            if (_distanceType == DistanceSimilarityEnum.PearsonSimilarity) return new UsersSimilarityReverseComparer();
+            if (_distanceType == DistanceSimilarityEnum.PearsonSimilarity)
+            {
+                return new UsersSimilarityReverseComparer();
+            }
 
             return new UsersSimilarityComparer();
         }

@@ -14,7 +14,6 @@ namespace RecommendationEngine
         private readonly IBookRecommender _recommender;
         private readonly IUsersSelector _selector;
         private readonly CollaborativeFilteringHelpers _helpers;
-        
 
         public UserBasedCollaborativeFiltering(IBookRecommender recommender, INearestNeighborsSearch nearestNeighbors,
             CollaborativeFilteringHelpers helpers, IUsersSelector selector)
@@ -25,12 +24,13 @@ namespace RecommendationEngine
             _selector = selector;
         }
 
-        public BookScore[] RecommendBooksForUser(int userId)
+        public Book[] RecommendBooksForUser(int userId)
         {
             var users = _selector.SelectUsersIdsToCompareWith(userId);
             var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId, users);
 
             return _recommender.GetRecommendedBooks(similarUsers, userId);
+            
         }
 
         public void InvokeScoreEvaluation(bool fromDbFlag, int settingId, string path, int[] users)
@@ -106,7 +106,7 @@ namespace RecommendationEngine
 
             Console.WriteLine($"Computing neighbors for userIds {userIds.Count}");
             var _ = new object();
-            
+
             Parallel.ForEach(userIds, user =>
                                       {
                                           Interlocked.Increment(ref i);
@@ -115,11 +115,8 @@ namespace RecommendationEngine
 
                                           try
                                           {
-                                              lock (_)
-                                              {
-                                                  var temp = _nearestNeighbors.GetNearestNeighbors(user, userIds);
-                                                  _helpers.PersistSimilarUsersInDb(temp, settingsId);
-                                              }
+                                              var temp = _nearestNeighbors.GetNearestNeighbors(user, userIds);
+                                              _helpers.PersistSimilarUsersInDb(temp, settingsId);
                                           }
                                           catch (Exception e)
                                           {
@@ -135,7 +132,6 @@ namespace RecommendationEngine
                                           Console.Clear();
 
                                           stopwatchValues.Add(new Tuple<int, long>(user, elapsed.Milliseconds));
-
                                       });
 
             _helpers.PrintErrors(errorIds);

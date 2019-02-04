@@ -19,7 +19,7 @@ namespace RecommendationEngine
             container.Register<IUserBasedCollaborativeFiltering, UserBasedCollaborativeFiltering>();
             container.Register<RecommendationEvaluator>();
             container.Register<CollaborativeFilteringHelpers>();
-     //       container.GetInstance<UsersSimilarity>();
+            container.GetInstance<UsersSimilarity>();
 
             return container;
         }

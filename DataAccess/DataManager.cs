@@ -142,6 +142,14 @@ namespace DataAccess
             }
         }
 
+        public Book[] GetBooksFromGivenBookScores(IEnumerable<string> bookIds)
+        {
+            using (var db = new BooksRecomendationsEntities())
+            {
+                return db.Books.Where(x => bookIds.Contains(x.ISBN)).ToArray();
+            }
+        }
+
         public List<UserSimilar> GetUserNeighbors(int userId, int settingsVersion)
         {
             using (var db = new BooksRecomendationsEntities())

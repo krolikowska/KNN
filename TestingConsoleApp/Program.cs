@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using DataAccess;
 using RecommendationEngine;
 
@@ -17,19 +18,14 @@ namespace TestingConsoleApp
             var runner = container.GetInstance<UserBasedCollaborativeFiltering>();
             var helper = container.GetInstance<CollaborativeFilteringHelpers>();
 
-            
-           var parameters = helper.GetParametersFromSettingsOrDb( false, 2);
+            var parameters = helper.GetParametersFromSettingsOrDb(parametersFromDb: false);
 
-           FindNearestNeighborsForUsersWhoReadMostPopularBooks(runner, false, parameters);
-
-
+            FindNearestNeighborsForUsersWhoReadMostPopularBooks(runner, false, parameters);
         }
 
-     
-
-        private static List<int> FindNearestNeighborsForUsers(UserBasedCollaborativeFiltering runner, bool error, Parameter parameters)
+        private static List<int> FindNearestNeighborsForUsers(UserBasedCollaborativeFiltering runner, bool error,
+            Parameter parameters)
         {
-           
             List<int> users;
             try
             {
@@ -44,19 +40,23 @@ namespace TestingConsoleApp
             return users;
         }
 
-        private static List<int> FindNearestNeighborsForUsersWhoReadMostPopularBooks(UserBasedCollaborativeFiltering runner, bool error, Parameter parameters)
+        private static void FindNearestNeighborsForUsersWhoReadMostPopularBooks(
+            UserBasedCollaborativeFiltering runner,
+            bool error,
+            Parameter parameters)
         {
-           List<int> users;
             try
             {
-                users = runner.InvokeNearestNeighborsForUsersWhoRatedPopularBooks(parameters.BookPopularity, path, error, parameters.Id);
+                runner.InvokeNearestNeighborsForUsersWhoRatedPopularBooks(parameters.BookPopularity,
+                                                                          path,
+                                                                          error,
+                                                                          parameters.Id);
             }
             catch (Exception e)
             {
                 Console.WriteLine($"exception{e}\n, inner ex {e.InnerException}\n, {e.Message}");
-                return null;
+                Thread.Sleep(2000);
             }
-            return users;
         }
     }
 }

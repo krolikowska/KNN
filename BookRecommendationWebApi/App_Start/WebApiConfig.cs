@@ -17,13 +17,16 @@ namespace RecommendationApi
             var container = new Container();
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
-            container.Register<IBookRecommender, BookRecommender>(Lifestyle.Scoped);
-            container.Register<INearestNeighborsSearch, NearestNeighborsSearch>(Lifestyle.Scoped);
-            container.Register<ISettings, Settings>(Lifestyle.Scoped);
-            container.Register<IDataManager, DataManager>(Lifestyle.Scoped);
+            container.Register<IBookRecommender, BookRecommender>();
+            container.Register<INearestNeighborsSearch, NearestNeighborsSearch>();
+            container.Register<IUsersSelector, UsersSelector>();
+            container.Register<ISettings, Settings>();
+            container.Register<IDataManager, DataManager>();
+            container.Register<IUsersSimilarity, UsersSimilarity>();
             container.Register<IUserBasedCollaborativeFiltering, UserBasedCollaborativeFiltering>();
-            container.Register<IUsersSelector, UsersSelector>(Lifestyle.Scoped);
+            container.Register<RecommendationEvaluator>();
             container.Register<CollaborativeFilteringHelpers>();
+            container.GetInstance<UsersSimilarity>();
 
             config.DependencyResolver = new SimpleInjectorWebApiDependencyResolver(container);
             container.Verify();

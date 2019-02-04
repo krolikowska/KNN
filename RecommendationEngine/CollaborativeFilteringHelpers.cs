@@ -19,7 +19,7 @@ namespace RecommendationEngine
             _settings = settings;
         }
 
-        public Parameter GetParametersFromSettingsOrDb(bool parametersFromDb, int paramVersionInDb)
+        public Parameter GetParametersFromSettingsOrDb(bool parametersFromDb, int paramVersionInDb = 0)
         {
             Parameter param;
             string text;
