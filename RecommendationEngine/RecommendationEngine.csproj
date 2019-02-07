@@ -83,6 +83,7 @@
     <Compile Include="DistanceSimilarityMetricsEnum.cs" />
     <Compile Include="IBookRecommender.cs" />
     <Compile Include="INearestNeighborsSearch.cs" />
+    <Compile Include="IRecommendationEvaluator.cs" />
     <Compile Include="ISettings.cs" />
     <Compile Include="IUserBasedCollaborativeFiltering.cs" />
     <Compile Include="IUsersSelector.cs" />

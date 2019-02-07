@@ -17,10 +17,11 @@ namespace TestingConsoleApp
             var container = builder.ConfigureContainer();
             var runner = container.GetInstance<UserBasedCollaborativeFiltering>();
             var helper = container.GetInstance<CollaborativeFilteringHelpers>();
+            var selector = container.GetInstance<UsersSelector>();
 
             var parameters = helper.GetParametersFromSettingsOrDb(parametersFromDb: false);
 
-            FindNearestNeighborsForUsersWhoReadMostPopularBooks(runner, false, parameters);
+            // FindNearestNeighborsForUsersWhoReadMostPopularBooks(runner, false, parameters);
         }
 
         private static List<int> FindNearestNeighborsForUsers(UserBasedCollaborativeFiltering runner, bool error,
@@ -29,7 +30,7 @@ namespace TestingConsoleApp
             List<int> users;
             try
             {
-                users = runner.InvokeNearestNeighbors(path, error, parameters.Id);
+                users = runner.InvokeNearestNeighbors(path, error, parameters.Id, 0);
             }
             catch (Exception e)
             {
@@ -38,25 +39,6 @@ namespace TestingConsoleApp
             }
 
             return users;
-        }
-
-        private static void FindNearestNeighborsForUsersWhoReadMostPopularBooks(
-            UserBasedCollaborativeFiltering runner,
-            bool error,
-            Parameter parameters)
-        {
-            try
-            {
-                runner.InvokeNearestNeighborsForUsersWhoRatedPopularBooks(parameters.BookPopularity,
-                                                                          path,
-                                                                          error,
-                                                                          parameters.Id);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"exception{e}\n, inner ex {e.InnerException}\n, {e.Message}");
-                Thread.Sleep(2000);
-            }
         }
     }
 }

@@ -9,6 +9,7 @@ namespace DataAccess
 
         Parameter GetParameters(int settingsVersion);
         void AddTestResults(List<BookScore[]> scores, int settingVersion);
+        void AddTestResult(List<BookScore> score, int settingVersion);
 
         int[] GetAllUsersWithComputedSimilarity(int settingVersion);
         List<int> GetUserIdsWithNorMoreRatedBooks(int n);

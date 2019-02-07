@@ -19,13 +19,15 @@ namespace RecommendationApi.Controllers
         private readonly IUserBasedCollaborativeFiltering _runner;
         private readonly ISettings _settings;
         private readonly IDataManager _context;
+        private readonly IRecommendationEvaluator _evaluator;
 
         public RecommendationsController(IUserBasedCollaborativeFiltering runner, ISettings settings,
-            IDataManager context)
+            IDataManager context, IRecommendationEvaluator evaluator)
         {
             _runner = runner;
             _settings = settings;
             _context = context;
+            _evaluator = evaluator;
         }
 
         /// -------------------------------------------------------------------------------------------------
@@ -85,16 +87,36 @@ namespace RecommendationApi.Controllers
         ///// <summary>   POST api/<controller>/VALUE. </summary>
         ///// <param name="userId">   Identifier for the user. </param>
         ///// -------------------------------------------------------------------------------------------------
-        //[HttpGet]
-        //[Route("recommendedBooks/{userId}")]
-        //[SwaggerOperation("Get recommended books for user by given user id",
-        //    OperationId = "GetRecommendedBookIdsForUser")]
-        //[SwaggerResponse(HttpStatusCode.OK, Type = typeof(IEnumerable<BookModel>))]
-        //[SwaggerResponse(HttpStatusCode.NoContent)]
-        //[SwaggerResponse(HttpStatusCode.ServiceUnavailable)]
-        //public void Post(int userId)
-        //{
-        //    _runner.RecommendBooksForUser(userId);
-        //}
+        [HttpGet]
+        [Route("GetNeighborhood/{userId}")]
+        [SwaggerOperation("Find nearest neighbors for user by given user id",
+            OperationId = "GetNeighborhood")]
+        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(IEnumerable<NeighborsModel>))]
+        [SwaggerResponse(HttpStatusCode.NoContent)]
+        [SwaggerResponse(HttpStatusCode.ServiceUnavailable)]
+        public IEnumerable<NeighborsModel> GetNeighborhood(int userId)
+        {
+            return _runner.InvokeNearestNeighbors(userId, _settings.MinNumberOfBooksEachUserRated)
+                          .Select(x => new NeighborsModel
+                          {
+                              UserId = x.UserId,
+                              NeighborId = x.ComparedUserId,
+                              ComputedSimilarity = x.Similarity,
+                              SettingsId = _settings.Id,
+                              SimilarityType = (DistanceSimilarityEnum) x.SimilarityType
+                          });
+        }
+
+        [HttpGet]
+        [Route("EvaluateScore/{userId}")]
+        [SwaggerOperation("Evaluate score for books user read",
+            OperationId = "EvaluateScore")]
+        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(IEnumerable<NeighborsModel>))]
+        [SwaggerResponse(HttpStatusCode.NoContent)]
+        [SwaggerResponse(HttpStatusCode.ServiceUnavailable)]
+        public double EvaluateScore(int userId)
+        {
+            return _evaluator.EvaluateScoreForUSer(userId, _settings);
+        }
     }
 }

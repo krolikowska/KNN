@@ -58,6 +58,7 @@ namespace DataAccess.Tests
             _helper.AddBooksRatedByUser(1, new[] {"1111", "1112", "1113"}, new short[] {1, 10, 5});
             _helper.AddBooksRatedByUser(2, new[] {"1111", "1112"}, new short[] {10, 5});
             _helper.AddBooksRatedByUser(3, new[] {"1113", "1114", "1115", "1144"}, new short[] {8, 5, 7, 4});
+            _helper.AddBooksRatedByUser(4, new[] { "1113", "1114", "1115", "1144" }, new short[] { 8, 5, 7, 4 });
 
             var actual = _sut.GetUserIdsWithNorMoreRatedBooks(3);
 

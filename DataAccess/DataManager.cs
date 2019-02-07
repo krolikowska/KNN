@@ -20,14 +20,12 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var temp = db.BooksRatings
-                             .Where(x => x.User.BooksRatings.Count >= n)
-                             .Select(x => x.UserId)
-                             .Distinct()
-                             .OrderBy(x => x)
-                             .ToList();
-
-                return temp;
+                return db.BooksRatings
+                         .Where(x => x.User.BooksRatings.Count >= n && x.User.BooksRatings.Count < 1000)
+                         .Select(x => x.UserId)
+                         .Distinct()
+                         .OrderBy(x => x)
+                         .ToList();
             }
         }
 
@@ -84,8 +82,9 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var result = similarUsers.Select(x => MapToUserSimilarDataModel(x, settingsVersion));
-                db.UserSimilars.AddRange(result);
+                var users = similarUsers.Select(x => MapToUserSimilarDataModel(x, settingsVersion)).ToList();
+                
+                db.UserSimilars.AddRange(users);
                 db.SaveChanges();
             }
         }
@@ -112,6 +111,17 @@ namespace DataAccess
                 var result = new List<Test>();
                 foreach (var score in scores)
                     result.AddRange(score.Select(bookScore => MapScoreToTest(bookScore, settingVersion)));
+
+                db.Tests.AddRange(result);
+                db.SaveChanges();
+            }
+        }
+
+        public void AddTestResult(List<BookScore> score, int settingVersion)
+        {
+            using (var db = new BooksRecomendationsEntities())
+            {
+                var result = score.Where(x => x.PredictedRate > 0).Select(bookScore => MapScoreToTest(bookScore, settingVersion));
 
                 db.Tests.AddRange(result);
                 db.SaveChanges();

@@ -30,15 +30,13 @@ namespace RecommendationEngine
             }
             else
             {
-               
                 text = "settings";
                 param = _settings.CreateParameterSetFromSettings();
                 _context.SaveParametersSet(param);
             }
-           
 
             Console.ForegroundColor = ConsoleColor.DarkMagenta;
-           
+
             Console.WriteLine($"Parameters from {text} with following setup:" +
                               $"\n Parameters ID:\t{param.Id}" +
                               $"\n Book popularity:\t{param.BookPopularity}" +
@@ -46,9 +44,8 @@ namespace RecommendationEngine
                               $"\n K neighbors:\t{param.Kneigbors}" +
                               $"\n No of books each user at least rated:\t{param.NumberOfBooksEachUserRated}");
             Console.ForegroundColor = ConsoleColor.White;
-            Thread.Sleep(3000);
+            // Thread.Sleep(3000);
             return param;
-
         }
 
         public void PrintErrors(List<int> errorIds)
@@ -83,8 +80,24 @@ namespace RecommendationEngine
         public void PersistTestResults(List<BookScore[]> books, int settingsId) =>
             _context.AddTestResults(books, settingsId);
 
+        public void PersistTestResult(List<BookScore> books, int settingsId)
+        {
+            _context.AddTestResult(books, settingsId);
+        }
+
+        public void SaveSettings(int settingsId)
+        {
+            var param = _context.GetParameters(settingsId);
+            if (param != null) return;
+            param = _settings.CreateParameterSetFromSettings();
+            _context.SaveParametersSet(param);
+        }
+
         public void PersistSimilarUsersInDb(List<UsersSimilarity> neighbors, int settingsId) =>
-            _context.AddSimilarUsers(neighbors, settingsId); //problem z tym jest
+            _context.AddSimilarUsers(neighbors, settingsId);
+
+        public void PersistSimilarUsersInDb(List<UsersSimilarity> neighbors) =>
+            _context.AddSimilarUsers(neighbors, _settings.Id);
 
         public void SaveTimesInCsvFile(List<Tuple<int, long>> elapsedTimes, string path)
         {

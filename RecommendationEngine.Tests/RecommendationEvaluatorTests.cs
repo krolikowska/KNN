@@ -1,17 +1,28 @@
 ﻿using System;
 using Shouldly;
 using Xunit;
+using NSubstitute;
 
 namespace RecommendationEngine.Tests
 {
     public class RecommendationEvaluatorTests
     {
+        private readonly INearestNeighborsSearch _nearestNeighbors;
+        private readonly IBookRecommender _recommender;
+        private readonly IUsersSelector _selector;
+        private readonly CollaborativeFilteringHelpers _helpers;
+
         public RecommendationEvaluatorTests()
         {
-            _recommendationEvaluator = new RecommendationEvaluator();
+            _nearestNeighbors = Substitute.For<INearestNeighborsSearch>();
+            _recommender = Substitute.For<IBookRecommender>();
+            _selector = Substitute.For<IUsersSelector>();
+            _helpers = Substitute.For<CollaborativeFilteringHelpers>();
+
+            _sut = new RecommendationEvaluator(_recommender, _nearestNeighbors,_helpers, _selector);
         }
 
-        private readonly RecommendationEvaluator _recommendationEvaluator;
+        private readonly RecommendationEvaluator _sut;
 
         [Theory]
         [InlineData(new double[] {1, 2, 3}, new[] {1, 2, 3}, 0.0)]
@@ -20,7 +31,7 @@ namespace RecommendationEngine.Tests
         public void ComputeMeanAbsoluteError_ValidInput_ShouldComputeError(double[] predicted, int[] actual,
             double error)
         {
-            var resut = _recommendationEvaluator.ComputeMeanAbsoluteError(predicted, actual);
+            var resut = _sut.ComputeMeanAbsoluteError(predicted, actual);
             resut.ShouldBe(error, 0.01);
         }
 
@@ -31,7 +42,7 @@ namespace RecommendationEngine.Tests
         public void ComputeRootMeanSquareError_ValidInput_ShouldComputeError(double[] predicted, int[] actual,
             double error)
         {
-            var resut = _recommendationEvaluator.ComputeRootMeanSquareError(predicted, actual);
+            var resut = _sut.ComputeRootMeanSquareError(predicted, actual);
             resut.ShouldBe(error, 0.01);
         }
 
@@ -42,7 +53,7 @@ namespace RecommendationEngine.Tests
             var actual = new int[3];
 
             Should.Throw<InvalidOperationException>(() =>
-                                                        _recommendationEvaluator
+                                                        _sut
                                                             .ComputeMeanAbsoluteError(predicted, actual));
         }
 
@@ -53,7 +64,7 @@ namespace RecommendationEngine.Tests
             var actual = new int[0];
 
             Should.Throw<InvalidOperationException>(() =>
-                                                        _recommendationEvaluator
+                                                        _sut
                                                             .ComputeMeanAbsoluteError(predicted, actual));
         }
 
@@ -64,7 +75,7 @@ namespace RecommendationEngine.Tests
             var actual = new int[3];
 
             Should.Throw<InvalidOperationException>(() =>
-                                                        _recommendationEvaluator
+                                                        _sut
                                                             .ComputeRootMeanSquareError(predicted, actual));
         }
 
@@ -75,7 +86,7 @@ namespace RecommendationEngine.Tests
             var actual = new int[0];
 
             Should.Throw<InvalidOperationException>(() =>
-                                                        _recommendationEvaluator
+                                                        _sut
                                                             .ComputeMeanAbsoluteError(predicted, actual));
         }
     }

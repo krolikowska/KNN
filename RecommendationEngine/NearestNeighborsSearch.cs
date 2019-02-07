@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading.Tasks;
 using DataAccess;
 using RecommendationEngine.Properties;
 
@@ -14,7 +15,6 @@ namespace RecommendationEngine
 
         public NearestNeighborsSearch(ISettings settings)
         {
-            //var settings1 = settings;
             _distanceType = settings.SimilarityDistance;
             _kNeighbors = settings.NumOfNeighbors;
         }
@@ -51,7 +51,7 @@ namespace RecommendationEngine
             var comparer = DetermineComparerFromDistanceType();
             Console.WriteLine($"get for {userId} with {usersToCompare.Count} users to compare");
             var sortedList = new SortedSet<UsersSimilarity>(comparer);
-          
+
             foreach (var comparedUser in usersToCompare)
             {
                 if (userId == comparedUser) continue;

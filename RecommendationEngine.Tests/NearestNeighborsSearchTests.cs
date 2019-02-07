@@ -1,3 +1,11 @@
 ﻿namespace RecommendationEngine.Tests {
-    public class NearestNeighborsSearchTests { }
+    public class NearestNeighborsSearchTests
+    {
+        public NearestNeighborsSearchTests()
+        {
+                
+        }
+
+
+    }
 }

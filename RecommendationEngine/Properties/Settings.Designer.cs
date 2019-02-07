@@ -45,7 +45,7 @@ namespace RecommendationEngine.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
         public int MinNumberOfBooksEachUserRated {
             get {
                 return ((int)(this["MinNumberOfBooksEachUserRated"]));
@@ -63,7 +63,7 @@ namespace RecommendationEngine.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int BookPopularityAmongUsers {
             get {
                 return ((int)(this["BookPopularityAmongUsers"]));
@@ -81,7 +81,7 @@ namespace RecommendationEngine.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("6")]
+        [global::System.Configuration.DefaultSettingValueAttribute("9")]
         public int Id {
             get {
                 return ((int)(this["Id"]));

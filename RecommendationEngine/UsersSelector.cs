@@ -30,9 +30,9 @@ namespace RecommendationEngine
             return usersToCompare;
         }
 
-        public List<int> GetUsersWhoRatedAtLeastNBooks()
+        public List<int> GetUsersWhoRatedAtLeastNBooks(int numOfBooks)
         {
-            return _context.GetUserIdsWithNorMoreRatedBooks(_minNumberOfBooksUserRated);
+            return _context.GetUserIdsWithNorMoreRatedBooks(numOfBooks);
         }
 
         public List<UsersSimilarity> GetSimilarUsersFromDb(int userId, int settingsVersion)
@@ -53,16 +53,7 @@ namespace RecommendationEngine
         public int[] GetListOfUsersWithComputedSimilarityForGivenSettings(int settingId) =>
             _context.GetAllUsersWithComputedSimilarity(_settingsVersion);
 
-        public List<int> GetMostActiveUsersWhoReadMostPopularBooks(int booksReadByAtLeastNoOfUsers,
-            int noOfBooksUsersAtLeastRead)
-        {
-            var mostPopularBooks = _context.GetBooksIdsRatedByAtLeastNUsers(booksReadByAtLeastNoOfUsers)
-                                           .Take(_bookPopularity)
-                                           .ToArray();
-            var users = _context.GetUsersWhoRatedAnyOfGivenBooks(mostPopularBooks);
-            var mostActiveUsers = _context.GetUserIdsWithNorMoreRatedBooks(noOfBooksUsersAtLeastRead);
-            return users.Intersect(mostActiveUsers).ToList();
-        }
+    
 
         public UsersSimilarity GetMutualAndUniqueBooks(UserSimilar userSimilarFromDb)
         {

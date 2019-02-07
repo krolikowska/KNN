@@ -63,11 +63,11 @@ namespace RecommendationEngine
             return recommendedBooks;
         }
 
-        public BookScore[] PredictScoreForAllUsersBooks(List<UsersSimilarity> usersSimilarity, int userId)
+        public List<BookScore> PredictScoreForAllUsersBooks(List<UsersSimilarity> usersSimilarity, int userId)
         {
             var booksUserRead = _context.GetBooksRatesByUserId(userId);
 
-            var predictedScores = new BookScore[booksUserRead.Length];
+            var predictedScores = new List<BookScore>(booksUserRead.Length);
             var meanRateForUser = _context.GetAverageRateForUser(userId) ?? 0;
 
             // we want to predict scores for books that user already rated
@@ -75,7 +75,11 @@ namespace RecommendationEngine
             for (var i = 0; i < booksUserRead.Length; i++)
             {
                 var book = booksUserRead[i];
-                predictedScores[i] = EvaluateScore(usersSimilarity, book, meanRateForUser);
+                var score = EvaluateScore(usersSimilarity, book, meanRateForUser);
+                if (score.PredictedRate > 0)
+                {
+                    predictedScores.Add(score);
+                }
             }
 
             return predictedScores;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataAccess;
+using RecommendationEngine.Properties;
 
 namespace RecommendationEngine
 {
@@ -30,23 +31,11 @@ namespace RecommendationEngine
             var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId, users);
 
             return _recommender.GetRecommendedBooks(similarUsers, userId);
-            
-        }
-
-        public void InvokeScoreEvaluation(bool fromDbFlag, int settingId, string path, int[] users)
-        {
-            if (fromDbFlag)
-            {
-                users = _selector.GetListOfUsersWithComputedSimilarityForGivenSettings(settingId);
-            }
-
-            var times = EvaluateScores(settingId, users);
-            _helpers.SaveTimesInCsvFile(times, path);
         }
 
         public List<Tuple<int, long>> EvaluateScores(int settingId, int[] users)
         {
-            var scores = new List<BookScore[]>();
+            var scores = new List<List<BookScore>>();
             var stopWatch = new Stopwatch();
             var stopwatchValues = new List<Tuple<int, long>>();
             var errorIds = new List<int>();
@@ -84,18 +73,19 @@ namespace RecommendationEngine
                                     });
 
             Console.WriteLine($"Writing to database");
-            _helpers.PersistTestResults(scores, settingId);
+        //    _helpers.PersistTestResults(scores, settingId);
             _helpers.PrintErrors(errorIds);
 
             return stopwatchValues;
         }
 
-        public BookScore[] PredictScoresForBooksUserAlreadyRead(int userId, int settingsId)
+        public List<BookScore> PredictScoresForBooksUserAlreadyRead(int userId, int settingsId)
         {
             var similarUsers = _selector.GetSimilarUsersFromDb(userId, settingsId);
             return _recommender.PredictScoreForAllUsersBooks(similarUsers, userId);
         }
 
+      
         private void GetNearestNeighborsWithElapsedTime(List<int> userIds, string path, int settingsId)
         {
             var stopWatch = new Stopwatch();
@@ -138,9 +128,17 @@ namespace RecommendationEngine
             _helpers.SaveTimesInCsvFile(stopwatchValues, path);
         }
 
-        public List<int> InvokeNearestNeighbors(string path, bool error, int settingId)
+        public List<UsersSimilarity> InvokeNearestNeighbors(int userId, int numberOfBooks)
         {
-            var users = _selector.GetUsersWhoRatedAtLeastNBooks();
+            var users = _selector.GetUsersWhoRatedAtLeastNBooks(numberOfBooks);
+            var result = _nearestNeighbors.GetNearestNeighbors(userId, users);
+            _helpers.PersistSimilarUsersInDb(result);
+            return result;
+        }
+
+        public List<int> InvokeNearestNeighbors(string path, bool error, int settingId, int n)
+        {
+            var users = _selector.GetUsersWhoRatedAtLeastNBooks(n);
             if (error)
             {
                 var computedUsers = _selector.GetListOfUsersWithComputedSimilarityForGivenSettings(settingId);
@@ -151,19 +149,5 @@ namespace RecommendationEngine
             return users;
         }
 
-        public List<int> InvokeNearestNeighborsForUsersWhoRatedPopularBooks(int bookPopularity, string path,
-            bool error, int settingId)
-        {
-            var users = _selector.GetMostActiveUsersWhoReadMostPopularBooks(bookPopularity, 5);
-            if (error)
-            {
-                var computedUsers = _selector.GetListOfUsersWithComputedSimilarityForGivenSettings(settingId);
-                users = users.Except(computedUsers).ToList();
-            }
-
-            GetNearestNeighborsWithElapsedTime(users, path, settingId);
-
-            return users;
-        }
     }
 }
