@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using DataAccess;
-using RecommendationEngine.Properties;
 
 namespace RecommendationEngine
 {
@@ -26,14 +25,24 @@ namespace RecommendationEngine
         {
             _helpers.SaveSettings(settings.Id);
             var users = _selector.GetUsersWhoRatedAtLeastNBooks(settings.MinNumberOfBooksEachUserRated);
-
-            var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId, users);
-            _helpers.PersistSimilarUsersInDb(similarUsers, settings.Id);
-
+            var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId, users, settings);
             var scores = _recommender.PredictScoreForAllUsersBooks(similarUsers, userId);
+            _helpers.PersistSimilarUsersInDb(similarUsers, settings.Id);
             _helpers.PersistTestResult(scores, settings.Id);
 
             return EvaluatePredictionsUsingMAE(scores);
+        }
+
+        public (double mae, double rsme) EvaluateScoreForUserWithErrors(int userId, ISettings settings,
+            List<int> users)
+        {
+            var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId, users, settings);
+            var scores = _recommender.PredictScoreForAllUsersBooks(similarUsers, userId);
+
+            var mae = EvaluatePredictionsUsingMAE(scores);
+            var rsme = EvaluatePredictionsUsingRSME(scores);
+
+            return (mae, rsme);
         }
 
         public double EvaluatePredictionsUsingMAE(List<BookScore> scores)
@@ -44,20 +53,12 @@ namespace RecommendationEngine
             return ComputeMeanAbsoluteError(predictedRates, actualRates);
         }
 
-        public double EvaluatePredictionsUsingMAE(BookScore[] scores)
+        public double EvaluatePredictionsUsingRSME(List<BookScore> scores)
         {
             var actualRates = scores.Select(s => (int) s.Rate).ToArray();
             var predictedRates = scores.Select(s => s.PredictedRate).ToArray();
 
-            return ComputeMeanAbsoluteError(predictedRates, actualRates);
-        }
-
-        public double EvaluatePredictionsUsingRSME(BookScore[] scores)
-        {
-            var actualRates = scores.Select(s => (int) s.Rate).ToArray();
-            var predictedRates = scores.Select(s => s.PredictedRate).ToArray();
-
-            return ComputeMeanAbsoluteError(predictedRates, actualRates);
+            return ComputeRootMeanSquareError(predictedRates, actualRates);
         }
 
         public double ComputeMeanAbsoluteError(double[] predictedRates, int[] actualRates)
@@ -74,7 +75,7 @@ namespace RecommendationEngine
             }
 
             var result = numerator / n;
-            return Math.Round(result, 2);
+            return Math.Round(result, 4);
         }
 
         public double ComputeRootMeanSquareError(double[] predictedRates, int[] actualRates)
@@ -90,7 +91,7 @@ namespace RecommendationEngine
             }
 
             var squareError = numerator / n;
-            return Math.Round(Math.Sqrt(squareError), 2);
+            return Math.Round(Math.Sqrt(squareError), 4);
         }
 
         private static void ValidateInput(int predictedRatesLenght, int actualRatesLenght)

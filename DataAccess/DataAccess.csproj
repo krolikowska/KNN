@@ -92,13 +92,11 @@
     </Compile>
     <Compile Include="Comparers.cs" />
     <Compile Include="DataManager.cs" />
-    <Compile Include="DataManagerHelpers.cs" />
     <Compile Include="DistanceSimilarityType.cs">
       <DependentUpon>BookRecomendationModel.tt</DependentUpon>
     </Compile>
     <Compile Include="EntityExtensions.cs" />
     <Compile Include="IDataManager.cs" />
-    <Compile Include="IUsersSimilarity.cs" />
     <Compile Include="Parameter.cs">
       <DependentUpon>BookRecomendationModel.tt</DependentUpon>
     </Compile>

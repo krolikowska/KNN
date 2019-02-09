@@ -1,7 +1,6 @@
 ﻿using System.Web.Http;
 using DataAccess;
 using RecommendationEngine;
-using RecommendationEngine.Properties;
 using SimpleInjector;
 using SimpleInjector.Integration.WebApi;
 using SimpleInjector.Lifestyles;
@@ -22,11 +21,9 @@ namespace RecommendationApi
             container.Register<IUsersSelector, UsersSelector>();
             container.Register<ISettings, Settings>();
             container.Register<IDataManager, DataManager>();
-            container.Register<IUsersSimilarity, UsersSimilarity>();
             container.Register<IUserBasedCollaborativeFiltering, UserBasedCollaborativeFiltering>();
             container.Register<IRecommendationEvaluator, RecommendationEvaluator>();
             container.Register<CollaborativeFilteringHelpers>();
-            container.GetInstance<UsersSimilarity>();
 
             config.DependencyResolver = new SimpleInjectorWebApiDependencyResolver(container);
             container.Verify();

@@ -4,28 +4,26 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using DataAccess;
-using RecommendationEngine.Properties;
 
 namespace RecommendationEngine
 {
     public class NearestNeighborsSearch : INearestNeighborsSearch
     {
-        private readonly DistanceSimilarityEnum _distanceType;
-        private readonly int _kNeighbors;
+        private readonly IUsersSelector _usersSelector;
 
-        public NearestNeighborsSearch(ISettings settings)
+        public NearestNeighborsSearch(IUsersSelector usersSelector)
         {
-            _distanceType = settings.SimilarityDistance;
-            _kNeighbors = settings.NumOfNeighbors;
+            _usersSelector = usersSelector;
         }
 
-        public UsersSimilarity ComputeSimilarityBetweenUsers(int userId, int comparedUserId)
+        private UsersSimilarity ComputeSimilarityBetweenUsers(int userId, int comparedUserId,
+            DistanceSimilarityEnum similarityDistance)
         {
-            var similarity = UsersSimilarity.GetMutualAndUniqueBooks(userId, comparedUserId);
+            var similarity = _usersSelector.SelectMutualAndUniqueBooksForUsers(userId, comparedUserId);
 
             if (similarity == null) return null;
 
-            switch (_distanceType)
+            switch (similarityDistance)
             {
                 case DistanceSimilarityEnum.CosineSimilarity:
                     similarity.Similarity = GetCosineDistance(similarity.UserRatesForMutualBooks,
@@ -42,38 +40,27 @@ namespace RecommendationEngine
                     throw new ArgumentOutOfRangeException();
             }
 
-            similarity.SimilarityType = (int) _distanceType;
+            similarity.SimilarityType = (int) similarityDistance;
             return similarity;
         }
 
-        public List<UsersSimilarity> GetNearestNeighbors(int userId, List<int> usersToCompare)
+        public List<UsersSimilarity> GetNearestNeighbors(int userId, List<int> usersToCompare, ISettings settings)
         {
-            var comparer = DetermineComparerFromDistanceType();
             Console.WriteLine($"get for {userId} with {usersToCompare.Count} users to compare");
-            var sortedList = new SortedSet<UsersSimilarity>(comparer);
+            var sortedList = new SortedSet<UsersSimilarity>(new UsersSimilarityReverseComparer());
 
             foreach (var comparedUser in usersToCompare)
             {
                 if (userId == comparedUser) continue;
-                var similarity = ComputeSimilarityBetweenUsers(userId, comparedUser);
+                var similarity = ComputeSimilarityBetweenUsers(userId, comparedUser, settings.SimilarityDistance);
 
                 if (similarity?.Similarity != null) sortedList.Add(similarity);
             }
 
-            return sortedList.Count == 0 ? null : sortedList.Take(_kNeighbors).ToList();
+            return sortedList.Count == 0 ? null : sortedList.Take(settings.NumOfNeighbors).ToList();
         }
 
-        public IComparer<UsersSimilarity> DetermineComparerFromDistanceType()
-        {
-            if (_distanceType == DistanceSimilarityEnum.PearsonSimilarity)
-            {
-                return new UsersSimilarityReverseComparer();
-            }
-
-            return new UsersSimilarityComparer();
-        }
-
-        public double GetCosineDistance(BookScore[] firstUserRates, BookScore[] secondUserRates)
+        private double GetCosineDistance(BookScore[] firstUserRates, BookScore[] secondUserRates)
         {
             var numerator = 0.0;
             var denominatorL = 0.0;
@@ -89,7 +76,7 @@ namespace RecommendationEngine
             return numerator / (Math.Sqrt(denominatorL) * Math.Sqrt(denominatorR));
         }
 
-        public double GetPearsonCorrelationSimilarity(BookScore[] firstUserRates, BookScore[] secondUserRates)
+        private double GetPearsonCorrelationSimilarity(BookScore[] firstUserRates, BookScore[] secondUserRates)
         {
             var rAvg1 = firstUserRates.Average(x => x.Rate);
             var rAvg2 = secondUserRates.Average(x => x.Rate);

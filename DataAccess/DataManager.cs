@@ -20,12 +20,14 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                return db.BooksRatings
-                         .Where(x => x.User.BooksRatings.Count >= n && x.User.BooksRatings.Count < 1000)
-                         .Select(x => x.UserId)
-                         .Distinct()
-                         .OrderBy(x => x)
-                         .ToList();
+                var users = db.BooksRatings
+                              .AsNoTracking()
+                              .Where(x => x.User.BooksRatings.Count >= n && x.User.BooksRatings.Count < 1000)
+                              .Select(x => x.UserId)
+                              .ToList();
+
+                return users.Distinct()
+                            .ToList();
             }
         }
 
@@ -83,7 +85,7 @@ namespace DataAccess
             using (var db = new BooksRecomendationsEntities())
             {
                 var users = similarUsers.Select(x => MapToUserSimilarDataModel(x, settingsVersion)).ToList();
-                
+
                 db.UserSimilars.AddRange(users);
                 db.SaveChanges();
             }
@@ -121,7 +123,8 @@ namespace DataAccess
         {
             using (var db = new BooksRecomendationsEntities())
             {
-                var result = score.Where(x => x.PredictedRate > 0).Select(bookScore => MapScoreToTest(bookScore, settingVersion));
+                var result = score.Where(x => x.PredictedRate > 0)
+                                  .Select(bookScore => MapScoreToTest(bookScore, settingVersion));
 
                 db.Tests.AddRange(result);
                 db.SaveChanges();

@@ -1,15 +1,16 @@
 ﻿using DataAccess;
 
-namespace RecommendationEngine.Properties
+namespace RecommendationEngine
 {
     public interface ISettings
     {
+        int Id { get; set; }
+        int MinNumberOfBooksEachUserRated { get; set; }
+        int NumOfBooksToRecommend { get; set; }
+        int NumOfNeighbors { get; set; }
+
         int BookPopularityAmongUsers { get; }
-        int Id { get; }
-        int MinNumberOfBooksEachUserRated { get; }
-        int NumOfBooksToRecommend { get; }
-        int NumOfNeighbors { get; }
-        DistanceSimilarityEnum SimilarityDistance { get; }
+        DistanceSimilarityEnum SimilarityDistance { get; set;}
 
         Parameter CreateParameterSetFromSettings();
     }

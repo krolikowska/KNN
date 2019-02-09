@@ -1,5 +1,4 @@
 ﻿using DataAccess;
-using RecommendationEngine.Properties;
 using SimpleInjector;
 
 namespace RecommendationEngine
@@ -15,11 +14,9 @@ namespace RecommendationEngine
             container.Register<IUsersSelector, UsersSelector>();
             container.Register<ISettings, Settings>();
             container.Register<IDataManager, DataManager>();
-            container.Register<IUsersSimilarity, UsersSimilarity>();
             container.Register<IUserBasedCollaborativeFiltering, UserBasedCollaborativeFiltering>();
             container.Register<IRecommendationEvaluator, RecommendationEvaluator>();
             container.Register<CollaborativeFilteringHelpers>();
-            container.GetInstance<UsersSimilarity>();
 
             return container;
         }

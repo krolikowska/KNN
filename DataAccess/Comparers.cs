@@ -6,7 +6,7 @@ namespace DataAccess
     {
         public int Compare(UsersSimilarity x, UsersSimilarity y)
         {
-            if (x.Similarity == y.Similarity && x.UserId == y.UserId) return 0;
+            if (x.Similarity == y.Similarity && x.ComparedUserId == y.ComparedUserId) return 0;
             if (x.Similarity > y.Similarity)
                 return 1;
             return -1;
@@ -17,7 +17,16 @@ namespace DataAccess
     {
         public int Compare(UsersSimilarity x, UsersSimilarity y)
         {
-            if (x.Similarity == y.Similarity && x.UserId == y.UserId) return 0;
+            if (x.Similarity == y.Similarity && x.ComparedUserId == y.ComparedUserId) return 0;
+            if (x.Similarity == y.Similarity && x.ComparedUserId != y.ComparedUserId)
+            {
+               if( x.ComparedUserRatesForMutualBooks.Length == y.ComparedUserRatesForMutualBooks.Length)
+                return 0;
+               if (x.ComparedUserRatesForMutualBooks.Length > y.ComparedUserRatesForMutualBooks.Length)
+                   return -1;
+               return 1;
+            }
+
             if (x.Similarity > y.Similarity)
                 return -1;
             return 1;

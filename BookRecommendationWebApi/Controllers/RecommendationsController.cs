@@ -6,7 +6,6 @@ using System.Web.Http.Results;
 using DataAccess;
 using RecommendationApi.Models;
 using RecommendationEngine;
-using RecommendationEngine.Properties;
 using Swashbuckle.Swagger.Annotations;
 
 namespace RecommendationApi.Controllers
@@ -54,7 +53,7 @@ namespace RecommendationApi.Controllers
                 if (booksForUser.Length == 0)
                 {
                     // if not in db, run algorithm
-                    booksForUser = _runner.RecommendBooksForUser(userId);
+                    booksForUser = _runner.RecommendBooksForUser(userId, _settings);
 
                     if (booksForUser.Length == 0)
                     {
@@ -81,30 +80,6 @@ namespace RecommendationApi.Controllers
             {
                 return Content<IEnumerable<BookModel>>(HttpStatusCode.ServiceUnavailable, null);
             }
-        }
-
-        ///// -------------------------------------------------------------------------------------------------
-        ///// <summary>   POST api/<controller>/VALUE. </summary>
-        ///// <param name="userId">   Identifier for the user. </param>
-        ///// -------------------------------------------------------------------------------------------------
-        [HttpGet]
-        [Route("GetNeighborhood/{userId}")]
-        [SwaggerOperation("Find nearest neighbors for user by given user id",
-            OperationId = "GetNeighborhood")]
-        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(IEnumerable<NeighborsModel>))]
-        [SwaggerResponse(HttpStatusCode.NoContent)]
-        [SwaggerResponse(HttpStatusCode.ServiceUnavailable)]
-        public IEnumerable<NeighborsModel> GetNeighborhood(int userId)
-        {
-            return _runner.InvokeNearestNeighbors(userId, _settings.MinNumberOfBooksEachUserRated)
-                          .Select(x => new NeighborsModel
-                          {
-                              UserId = x.UserId,
-                              NeighborId = x.ComparedUserId,
-                              ComputedSimilarity = x.Similarity,
-                              SettingsId = _settings.Id,
-                              SimilarityType = (DistanceSimilarityEnum) x.SimilarityType
-                          });
         }
 
         [HttpGet]

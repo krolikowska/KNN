@@ -5,6 +5,6 @@ namespace RecommendationEngine
 {
     public interface INearestNeighborsSearch
     {
-        List<UsersSimilarity> GetNearestNeighbors(int userId, List<int> usersToCompare);
+        List<UsersSimilarity> GetNearestNeighbors(int userId, List<int> usersToCompare, ISettings settings);
     }
 }

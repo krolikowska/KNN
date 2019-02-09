@@ -1,10 +1,11 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using DataAccess;
 using CsvHelper;
-using RecommendationEngine.Properties;
 
 namespace RecommendationEngine
 {
@@ -60,11 +61,9 @@ namespace RecommendationEngine
         public void PrintStats(double i, int length, long sum, int user)
         {
             var _ = new object();
-            Monitor.Enter(_);
             var progress = i / length * 100.0;
             var average = sum / (i * 1000.0);
-            var speed = average == 0 ? 0 : 1 / average;
-            var remainingTime = (length - i) * speed / 1000.0;
+            var remainingTime = (length - i) * average / 60.0;
 
             Console.BackgroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine($"{i} UserId {user}");
@@ -73,8 +72,6 @@ namespace RecommendationEngine
             Console.BackgroundColor = ConsoleColor.DarkRed;
             Console.WriteLine($"Evaluated in average\t{average:F}\tseconds");
             Console.WriteLine($"Remaining time \t{remainingTime:F}\tminutes");
-
-            Monitor.Exit(_);
         }
 
         public void PersistTestResults(List<BookScore[]> books, int settingsId) =>
@@ -105,6 +102,27 @@ namespace RecommendationEngine
             using (var csv = new CsvWriter(writer))
             {
                 csv.WriteRecords(elapsedTimes);
+            }
+        }
+
+        public List<int> ReadFromCsv(string path)
+        {
+            var result = new List<int>();
+            using (var reader = new StreamReader(path))
+            using (var csv = new CsvReader(reader))
+            {
+                result = csv.GetRecords<int>().ToList();
+            }
+
+            return result;
+        }
+
+        public void SaveInCsvFile<T>(List<T> errors, string fileName)
+        {
+            using (var writer = new StreamWriter($@"..\..\{fileName}.csv"))
+            using (var csv = new CsvWriter(writer))
+            {
+                csv.WriteRecords(errors);
             }
         }
     }

@@ -2,17 +2,13 @@
 using System.Collections.Generic;
 using System.Data.Entity.Migrations;
 using System.Linq;
-using NSubstitute;
 
-namespace DataAccess
+namespace DataAccess.Tests
 {
     public class DataManagerHelpers
     {
-        private readonly IDataManager _dm;
-
         public DataManagerHelpers()
         {
-            _dm = Substitute.For<IDataManager>();
             ClearDb();
         }
 
@@ -126,7 +122,7 @@ namespace DataAccess
             AddParameters(parametersId);
 
             return userNeighbors
-                   .Select(neighbor => new UsersSimilarity(_dm) {UserId = userId, ComparedUserId = neighbor})
+                   .Select(neighbor => new UsersSimilarity {UserId = userId, ComparedUserId = neighbor})
                    .ToList();
         }
 

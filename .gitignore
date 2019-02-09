@@ -259,3 +259,12 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/TestingConsoleApp/errors_85656_cos.csv
+/TestingConsoleApp/errors_424_cos.csv
+/TestingConsoleApp/errors_30711_cos.csv
+/TestingConsoleApp/errors_264321_to40books.csv
+/TestingConsoleApp/errors_264321_rmseLast.csv
+/TestingConsoleApp/errors_264321_rmse.csv
+/TestingConsoleApp/errors_264321_cos.csv
+/TestingConsoleApp/errors_264321_books.csv
+/TestingConsoleApp/errors_264321FINALLLcosine.csv
