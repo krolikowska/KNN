@@ -30,7 +30,7 @@ namespace RecommendationEngine
             _helpers.PersistSimilarUsersInDb(similarUsers, settings.Id);
             _helpers.PersistTestResult(scores, settings.Id);
 
-            return EvaluatePredictionsUsingMAE(scores);
+            return EvaluatePredictionsUsingRSME(scores);
         }
 
         public (double mae, double rsme) EvaluateScoreForUserWithErrors(int userId, ISettings settings,
@@ -38,6 +38,7 @@ namespace RecommendationEngine
         {
             var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId, users, settings);
             var scores = _recommender.PredictScoreForAllUsersBooks(similarUsers, userId);
+            if (scores.Count == 0) return (10, 10);
 
             var mae = EvaluatePredictionsUsingMAE(scores);
             var rsme = EvaluatePredictionsUsingRSME(scores);

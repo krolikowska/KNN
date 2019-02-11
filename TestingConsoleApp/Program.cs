@@ -11,8 +11,6 @@ namespace TestingConsoleApp
 {
     class Program
     {
-        const string path = @"..\..\ElapsedTime.csv";
-
         static CollaborativeFilteringHelpers _helper;
         static IRecommendationEvaluator _evaluator;
         private static IUsersSelector _selector;
@@ -27,8 +25,21 @@ namespace TestingConsoleApp
             _selector = container.GetInstance<IUsersSelector>();
             _settings = container.GetInstance<ISettings>();
 
-            int[] n = {5, 30, 60};
-            int[] k = {30, 30, 60};
+       //     ComputeForDifferentParameters(260531, "test");
+
+            ComputeForDifferentSetup(80,60);
+
+            //int[] n = {5, 50, 80};
+            //int[] k = {30, 40, 60};
+
+            //for (int i = 0; i < n.Length; i++)
+            //{
+            //    ComputeForDifferentSetup(n[i], k[i]);
+
+            //    Console.BackgroundColor = ConsoleColor.Cyan;
+            //    Console.WriteLine($" Progress {i / n.Length:P}");
+            //    Console.BackgroundColor = ConsoleColor.Black;
+            //}
         }
 
         private static void ComputeForDifferentSetup(int n, int k)
@@ -58,14 +69,16 @@ namespace TestingConsoleApp
         private static void ComputeForUsers()
         {
             var listOfErrors = new List<Tuple<int, int, int, double, double>>();
-            var users = _helper.ReadFromCsv(Properties.Resources.UsersList);
+            var users = _helper.ReadFromCsv(@"..\..\UsersList.csv");
+            var usersToCompare = _selector.GetUsersWhoRatedAtLeastNBooks(_settings.MinNumberOfBooksEachUserRated);
+
             Console.WriteLine($"Read {users.Count} users from file");
             var counter = 0;
             try
             {
                 foreach (var user in users)
                 {
-                    var (mae, rsme) = _evaluator.EvaluateScoreForUserWithErrors(user, _settings, users);
+                    var (mae, rsme) = _evaluator.EvaluateScoreForUserWithErrors(user, _settings, usersToCompare);
                     listOfErrors.Add(new Tuple<int, int, int, double, double>(user,
                                                                               _settings.NumOfNeighbors,
                                                                               _settings.MinNumberOfBooksEachUserRated,
@@ -74,7 +87,7 @@ namespace TestingConsoleApp
 
                     counter++;
                     Console.WriteLine($"User {user} N: {_settings.MinNumberOfBooksEachUserRated} K: {_settings.NumOfNeighbors}, MAE: {mae}, RSME: {rsme}");
-                    Console.WriteLine($" Progress {counter / users.Count:P}");
+                    Console.WriteLine($" Progress {counter / users.Count*100:P}");
                 }
             }
             finally
@@ -89,7 +102,7 @@ namespace TestingConsoleApp
             var listOfErrors = new List<Tuple<int, int, double, double>>();
             var stopWatch = new Stopwatch();
 
-            const int noBooksRange = 200;
+            const int noBooksRange = 5;
             const int neighborsRange = 200;
             const int loops = (neighborsRange / 10 - 1) * (noBooksRange / 10);
 
