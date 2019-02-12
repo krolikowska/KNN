@@ -46,7 +46,7 @@ namespace RecommendationEngine
             return (mae, rsme);
         }
 
-        public double EvaluatePredictionsUsingMAE(List<BookScore> scores)
+        private double EvaluatePredictionsUsingMAE(List<BookScore> scores)
         {
             var actualRates = scores.Select(s => (int) s.Rate).ToArray();
             var predictedRates = scores.Select(s => s.PredictedRate).ToArray();
@@ -54,7 +54,7 @@ namespace RecommendationEngine
             return ComputeMeanAbsoluteError(predictedRates, actualRates);
         }
 
-        public double EvaluatePredictionsUsingRSME(List<BookScore> scores)
+        private double EvaluatePredictionsUsingRSME(List<BookScore> scores)
         {
             var actualRates = scores.Select(s => (int) s.Rate).ToArray();
             var predictedRates = scores.Select(s => s.PredictedRate).ToArray();
@@ -62,7 +62,7 @@ namespace RecommendationEngine
             return ComputeRootMeanSquareError(predictedRates, actualRates);
         }
 
-        public double ComputeMeanAbsoluteError(double[] predictedRates, int[] actualRates)
+        private double ComputeMeanAbsoluteError(double[] predictedRates, int[] actualRates)
         {
             var n = predictedRates.Length;
             ValidateInput(actualRates.Length, n);
@@ -79,7 +79,7 @@ namespace RecommendationEngine
             return Math.Round(result, 4);
         }
 
-        public double ComputeRootMeanSquareError(double[] predictedRates, int[] actualRates)
+        private double ComputeRootMeanSquareError(double[] predictedRates, int[] actualRates)
         {
             var n = predictedRates.Length;
             ValidateInput(actualRates.Length, n);

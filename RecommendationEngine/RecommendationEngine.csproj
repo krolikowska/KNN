@@ -80,9 +80,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BookRecommender.cs" />
-    <Compile Include="CollaborativeFilteringHelpers.cs" />
-    <Compile Include="ContainerBuilder.cs" />
-    <Compile Include="DistanceSimilarityMetricsEnum.cs" />
+    <Compile Include="Helpers\CollaborativeFilteringHelpers.cs" />
+    <Compile Include="Helpers\ContainerBuilder.cs" />
+    <Compile Include="Helpers\DistanceSimilarityMetricsEnum.cs" />
     <Compile Include="Interfaces\IBookRecommender.cs" />
     <Compile Include="Interfaces\INearestNeighborsSearch.cs" />
     <Compile Include="Interfaces\IRecommendationEvaluator.cs" />
@@ -92,7 +92,7 @@
     <Compile Include="NearestNeighborsSearch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecommendationEvaluator.cs" />
-    <Compile Include="Settings.cs" />
+    <Compile Include="Helpers\Settings.cs" />
     <Compile Include="UserBasedCollaborativeFiltering.cs" />
     <Compile Include="UsersSelector.cs" />
   </ItemGroup>
