@@ -1,7 +1,7 @@
-﻿using System;
+﻿using DataAccess;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using DataAccess;
 
 namespace RecommendationEngine
 {
@@ -18,13 +18,9 @@ namespace RecommendationEngine
             _minNumOfUsersWhoRatedBook = settings.MinNumberOfBooksEachUserRated;
         }
 
-        public BookScore[] GetRecommendedBooksWithScores(List<UsersSimilarity> similarUsers, int userId)
+        public Book[] GetRecommendedBooksFromDatabase(int userId)
         {
-            var booksIds = PreparePotentialBooksToRecommendation(similarUsers, userId);
-            var booksRates = GetAllRecommendedBooksForUser(similarUsers, userId, booksIds);
-            var result = booksRates.Take(_numbOfBooksToRecommend).ToArray();
-            PersistRecommendedBooksInDb(result, userId);
-            return result.ToArray();
+            return _context.GetRecommendedBooksForUser(userId).ToArray();
         }
 
         public Book[] GetRecommendedBooks(List<UsersSimilarity> similarUsers, int userId)
@@ -33,7 +29,41 @@ namespace RecommendationEngine
             return _context.GetBooksFromGivenBookScores(bookIds);
         }
 
-        public SortedSet<BookScore> GetAllRecommendedBooksForUser(List<UsersSimilarity> similarUsers, int userId,
+        public List<BookScore> PredictScoreForAllUsersBooks(List<UsersSimilarity> usersSimilarity, int userId)
+        {
+            var booksUserRead = _context.GetBooksRatesByUserId(userId);
+
+            var predictedScores = new List<BookScore>(booksUserRead.Length);
+            var meanRateForUser = _context.GetAverageRateForUser(userId) ?? 0;
+
+            // we want to predict scores for books that user already rated
+            usersSimilarity = CombineUniqueAndMutualBooksForUser(usersSimilarity);
+            for (var i = 0; i < booksUserRead.Length; i++)
+            {
+                var book = booksUserRead[i];
+                var score = EvaluateScore(usersSimilarity, book, meanRateForUser);
+                if (score.PredictedRate > 0)
+                {
+                    predictedScores.Add(score);
+                }
+            }
+
+            return predictedScores;
+        }
+
+        public void PersistRecommendedBooksInDb(BookScore[] books, int userId) =>
+            _context.AddRecommendedBooksForUser(books, userId);
+
+        private BookScore[] GetRecommendedBooksWithScores(List<UsersSimilarity> similarUsers, int userId)
+        {
+            var booksIds = PreparePotentialBooksToRecommendation(similarUsers, userId);
+            var booksRates = GetAllRecommendedBooksForUser(similarUsers, userId, booksIds);
+            var result = booksRates.Take(_numbOfBooksToRecommend).ToArray();
+            PersistRecommendedBooksInDb(result, userId);
+            return result.ToArray();
+        }
+
+        private SortedSet<BookScore> GetAllRecommendedBooksForUser(List<UsersSimilarity> similarUsers, int userId,
             string[] booksIds)
         {
             if (similarUsers == null || similarUsers?.Count == 0) return null;
@@ -62,28 +92,6 @@ namespace RecommendationEngine
             return recommendedBooks;
         }
 
-        public List<BookScore> PredictScoreForAllUsersBooks(List<UsersSimilarity> usersSimilarity, int userId)
-        {
-            var booksUserRead = _context.GetBooksRatesByUserId(userId);
-
-            var predictedScores = new List<BookScore>(booksUserRead.Length);
-            var meanRateForUser = _context.GetAverageRateForUser(userId) ?? 0;
-
-            // we want to predict scores for books that user already rated
-            usersSimilarity = CombineUniqueAndMutualBooksForUser(usersSimilarity);
-            for (var i = 0; i < booksUserRead.Length; i++)
-            {
-                var book = booksUserRead[i];
-                var score = EvaluateScore(usersSimilarity, book, meanRateForUser);
-                if (score.PredictedRate > 0)
-                {
-                    predictedScores.Add(score);
-                }
-            }
-
-            return predictedScores;
-        }
-
         private BookScore EvaluateScore(IEnumerable<UsersSimilarity> similarUsers, BookScore bookScore,
             double meanRateForUser)
         {
@@ -109,10 +117,9 @@ namespace RecommendationEngine
             return bookScore;
         }
 
-        public void PersistRecommendedBooksInDb(BookScore[] books, int userId) =>
-            _context.AddRecommendedBooksForUser(books, userId);
+       
 
-        public string[] PreparePotentialBooksToRecommendation(List<UsersSimilarity> similarUsers, int userId)
+        private string[] PreparePotentialBooksToRecommendation(List<UsersSimilarity> similarUsers, int userId)
         {
             var booksIds = GetUniqueBooksIds(similarUsers); // we get list contains all books read by neighbors,
             return _minNumOfUsersWhoRatedBook == 0
@@ -121,7 +128,7 @@ namespace RecommendationEngine
                                                            _minNumOfUsersWhoRatedBook);
         }
 
-        public string[] GetUniqueBooksIds(List<UsersSimilarity> similarUsers)
+        private string[] GetUniqueBooksIds(List<UsersSimilarity> similarUsers)
         {
             // unique list of books we recommend
             return similarUsers
@@ -131,7 +138,7 @@ namespace RecommendationEngine
                    .ToArray();
         }
 
-        public List<UsersSimilarity> CombineUniqueAndMutualBooksForUser(List<UsersSimilarity> similarUsers)
+        private List<UsersSimilarity> CombineUniqueAndMutualBooksForUser(List<UsersSimilarity> similarUsers)
         {
             foreach (var u in similarUsers)
             {

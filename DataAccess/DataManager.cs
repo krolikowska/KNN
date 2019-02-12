@@ -8,6 +8,16 @@ namespace DataAccess
 {
     public class DataManager : IDataManager
     {
+        public void AddSimilarUsers(List<UsersSimilarity> similarUsers, int settingsVersion)
+        {
+            using (var db = new BooksRecomendationsEntities())
+            {
+                var users = similarUsers.Select(x => MapToUserSimilarDataModel(x, settingsVersion)).ToList();
+
+                db.UserSimilars.AddRange(users);
+                db.SaveChanges();
+            }
+        }
         public User[] GetAllUsersWithRatedBooks()
         {
             using (var db = new BooksRecomendationsEntities())
@@ -80,17 +90,6 @@ namespace DataAccess
             }
         }
 
-        public void AddSimilarUsers(List<UsersSimilarity> similarUsers, int settingsVersion)
-        {
-            using (var db = new BooksRecomendationsEntities())
-            {
-                var users = similarUsers.Select(x => MapToUserSimilarDataModel(x, settingsVersion)).ToList();
-
-                db.UserSimilars.AddRange(users);
-                db.SaveChanges();
-            }
-        }
-
         public void AddRecommendedBooksForUser(BookScore[] books, int userId)
         {
             using (var db = new BooksRecomendationsEntities())
@@ -129,18 +128,6 @@ namespace DataAccess
                 db.Tests.AddRange(result);
                 db.SaveChanges();
             }
-        }
-
-        private Test MapScoreToTest(BookScore score, int settingVersion)
-        {
-            return new Test
-            {
-                ActualRate = score.Rate,
-                BookId = score.BookId,
-                ParametersSet = settingVersion,
-                UserId = score.UserId,
-                PredictedRate = score.PredictedRate
-            };
         }
 
         public Book[] GetRecommendedBooksForUser(int userId)
@@ -245,6 +232,18 @@ namespace DataAccess
                 NeighborId = user.ComparedUserId,
                 Similarity = user.Similarity,
                 ParametersSet = settingsVersion
+            };
+        }
+
+        private Test MapScoreToTest(BookScore score, int settingVersion)
+        {
+            return new Test
+            {
+                ActualRate = score.Rate,
+                BookId = score.BookId,
+                ParametersSet = settingVersion,
+                UserId = score.UserId,
+                PredictedRate = score.PredictedRate
             };
         }
     }

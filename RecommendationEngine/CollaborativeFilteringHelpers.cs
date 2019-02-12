@@ -113,7 +113,7 @@ namespace RecommendationEngine
             {
                 result = csv.GetRecords<int>().ToList();
             }
-
+            Console.WriteLine($"Read {result.Count} records from file");
             return result;
         }
 
