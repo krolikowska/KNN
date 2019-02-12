@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace DataAccess.Tests
 {
-    public class DataManagerHelpers
+    public class DataManagerTestHelpers
     {
-        public DataManagerHelpers()
+        public DataManagerTestHelpers()
         {
             ClearDb();
         }
@@ -30,12 +30,12 @@ namespace DataAccess.Tests
             }
         }
 
-        public void AddUsers(int[] userIds)
+        private void AddUsers(int[] userIds)
         {
             foreach (var u in userIds) AddUser(u);
         }
 
-        public void AddBooks(string[] isbn)
+        private void AddBooks(string[] isbn)
         {
             using (var context = new BooksRecomendationsEntities())
             {
@@ -59,7 +59,7 @@ namespace DataAccess.Tests
             }
         }
 
-        public void AddParameters(int id)
+        private void AddParameters(int id)
         {
             using (var context = new BooksRecomendationsEntities())
             {
@@ -78,7 +78,7 @@ namespace DataAccess.Tests
             }
         }
 
-        public void AddBooksRatings(List<BooksRating> rates)
+        private void AddBooksRatings(List<BooksRating> rates)
         {
             var users = rates.Select(x => x.UserId).Distinct().ToArray();
             var books = rates.Select(x => x.ISBN).Distinct().ToArray();
@@ -109,7 +109,7 @@ namespace DataAccess.Tests
             }
         }
 
-        public double RandomNumber(int seed)
+        private double RandomNumber(int seed)
         {
             var random = new Random(seed);
             return random.Next(0, 10);
@@ -152,7 +152,7 @@ namespace DataAccess.Tests
             AddBooksRatings(booksRatings);
         }
 
-        public void ClearDb()
+        private void ClearDb()
         {
             using (var context = new BooksRecomendationsEntities())
             {
