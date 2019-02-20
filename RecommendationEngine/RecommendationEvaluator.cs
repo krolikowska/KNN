@@ -23,17 +23,18 @@ namespace RecommendationEngine
 
         public double EvaluateScoreForUSer(int userId, ISettings settings)
         {
-            _helpers.SaveSettings(settings.Id);
             var users = _selector.GetUsersWhoRatedAtLeastNBooks(settings.MinNumberOfBooksEachUserRated);
             var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId, users, settings);
             var scores = _recommender.PredictScoreForAllUsersBooks(similarUsers, userId);
+
+            _helpers.SaveSettings(settings.Id);
             _helpers.PersistSimilarUsersInDb(similarUsers, settings.Id);
             _helpers.PersistTestResult(scores, settings.Id);
 
             return EvaluatePredictionsUsingRSME(scores);
         }
 
-        public (double mae, double rsme) EvaluateScoreForUserWithErrors(int userId, ISettings settings,
+        public (double mae, double rsme) EvaluateScoreForUserWithErrorsEvaluation(int userId, ISettings settings,
             List<int> users)
         {
             var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId, users, settings);

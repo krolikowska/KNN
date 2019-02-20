@@ -47,11 +47,6 @@ namespace RecommendationEngine
             return similarUsers;
         }
 
-        public int[] GetListOfUsersWithComputedSimilarityForGivenSettings(int settingId) =>
-            _context.GetAllUsersWithComputedSimilarity(_settingsVersion);
-
-    
-
         public UsersSimilarity GetMutualAndUniqueBooks(UserSimilar userSimilarFromDb)
         {
             var similarity = SelectMutualAndUniqueBooksForUsers(userSimilarFromDb.UserId, userSimilarFromDb.NeighborId);

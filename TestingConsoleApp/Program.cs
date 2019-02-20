@@ -98,6 +98,7 @@ namespace TestingConsoleApp
                               $"\n-all-users --N --K Evaluate for given BooksRead (N) and NearestNeighbors (K)" +
                               $"\n-search            Evaluate book scores for given user id and all various parametes set, results are persited in csv file");
         }
+
         private static bool EvaluateScoreForUser(string UserId)
         {
             if (int.TryParse(UserId, out int id))
@@ -111,6 +112,7 @@ namespace TestingConsoleApp
                 return false;
             }
         }
+
         private static bool EvaluateForVariousParametersSets(string UserId)
         {
             if (int.TryParse(UserId, out int id))
@@ -124,6 +126,7 @@ namespace TestingConsoleApp
                 return false;
             }
         }
+
         private static void EvaluateForSpecifiedParameters(int n, int k)
         {
             _settings.MinNumberOfBooksEachUserRated = n;
@@ -137,7 +140,7 @@ namespace TestingConsoleApp
         {
             PrintSettings();
             var users = _selector.GetUsersWhoRatedAtLeastNBooks(_settings.MinNumberOfBooksEachUserRated);
-            var (mae, rsme) = _evaluator.EvaluateScoreForUserWithErrors(userId, _settings, users);
+            var (mae, rsme) = _evaluator.EvaluateScoreForUserWithErrorsEvaluation(userId, _settings, users);
 
             Console.WriteLine($"N: {_settings.MinNumberOfBooksEachUserRated} K: {_settings.NumOfNeighbors}, MAE: {mae}, RSME: {rsme}");
         }
@@ -160,7 +163,7 @@ namespace TestingConsoleApp
             {
                 foreach (var user in users)
                 {
-                    var (mae, rsme) = _evaluator.EvaluateScoreForUserWithErrors(user, _settings, usersToCompare);
+                    var (mae, rsme) = _evaluator.EvaluateScoreForUserWithErrorsEvaluation(user, _settings, usersToCompare);
                     listOfErrors.Add(new Tuple<int, int, int, double, double>(user,
                                                                               _settings.NumOfNeighbors,
                                                                               _settings.MinNumberOfBooksEachUserRated,
@@ -209,7 +212,7 @@ namespace TestingConsoleApp
                     for (var j = 20; j <= neighborsRange; j += 10)
                     {
                         _settings.NumOfNeighbors = j;
-                        var (mae, rsme) = _evaluator.EvaluateScoreForUserWithErrors(userId, _settings, users);
+                        var (mae, rsme) = _evaluator.EvaluateScoreForUserWithErrorsEvaluation(userId, _settings, users);
                         listOfErrors.Add(new Tuple<int, int, double, double>(_settings.NumOfNeighbors,
                                                                              _settings.MinNumberOfBooksEachUserRated,
                                                                              mae,

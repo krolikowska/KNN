@@ -7,8 +7,7 @@ namespace RecommendationEngine
     {
         List<int> SelectUsersIdsToCompareWith(int userId);
         List<int> GetUsersWhoRatedAtLeastNBooks(int numOfBooks);
-        List<UsersSimilarity> GetSimilarUsersFromDb(int userId, int settingsVersion);
-        int[] GetListOfUsersWithComputedSimilarityForGivenSettings(int settingId);
+        List<UsersSimilarity> GetSimilarUsersFromDb(int userId, int settingsVersion);     
         UsersSimilarity SelectMutualAndUniqueBooksForUsers(int userId, int comparedUserId);
     }
 }

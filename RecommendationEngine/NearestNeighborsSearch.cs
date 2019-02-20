@@ -28,7 +28,6 @@ namespace RecommendationEngine
                 case DistanceSimilarityEnum.CosineSimilarity:
                     similarity.Similarity = GetCosineDistance(similarity.UserRatesForMutualBooks,
                                                               similarity.ComparedUserRatesForMutualBooks);
-
                     break;
 
                 case DistanceSimilarityEnum.PearsonSimilarity:
