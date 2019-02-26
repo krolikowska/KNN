@@ -6,6 +6,6 @@ namespace RecommendationEngine
     {
         double EvaluateScoreForUSer(int userId, ISettings settings);
 
-        (double mae, double rsme) EvaluateScoreForUserWithErrors(int userId, ISettings settings, List<int> users);
+        (double mae, double rsme) EvaluateScoreForUserWithErrorsEvaluation(int userId, ISettings settings, List<int> users);
     }
 }
