@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using RecommendationApi.Models;
+using RecommendationEngine;
+using Swashbuckle.Swagger.Annotations;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.Results;
-using DataAccess;
-using RecommendationApi.Models;
-using RecommendationEngine;
-using Swashbuckle.Swagger.Annotations;
 
 namespace RecommendationApi.Controllers
 {
@@ -17,15 +16,12 @@ namespace RecommendationApi.Controllers
     {
         private readonly IUserBasedCollaborativeFiltering _runner;
         private readonly ISettings _settings;
-        private readonly IDataManager _context;
         private readonly IRecommendationEvaluator _evaluator;
 
-        public RecommendationsController(IUserBasedCollaborativeFiltering runner, ISettings settings,
-            IDataManager context, IRecommendationEvaluator evaluator)
+        public RecommendationsController(IUserBasedCollaborativeFiltering runner, ISettings settings, IRecommendationEvaluator evaluator)
         {
             _runner = runner;
             _settings = settings;
-            _context = context;
             _evaluator = evaluator;
         }
 
@@ -48,17 +44,11 @@ namespace RecommendationApi.Controllers
         {
             try
             {
-                //by default get from db
-                var booksForUser = _context.GetRecommendedBooksForUser(userId).ToArray();
+                var booksForUser = _runner.RecommendBooksForUser(userId, _settings);
+
                 if (booksForUser.Length == 0)
                 {
-                    // if not in db, run algorithm
-                    booksForUser = _runner.RecommendBooksForUser(userId, _settings);
-
-                    if (booksForUser.Length == 0)
-                    {
-                        return Content<IEnumerable<BookModel>>(HttpStatusCode.NoContent, null);
-                    }
+                    return Content<IEnumerable<BookModel>>(HttpStatusCode.NoContent, null);
                 }
 
                 var books = booksForUser
@@ -86,7 +76,7 @@ namespace RecommendationApi.Controllers
         [Route("EvaluateScore/{userId}")]
         [SwaggerOperation("Evaluate score for books user read",
             OperationId = "EvaluateScore")]
-        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(IEnumerable<NeighborsModel>))]
+        [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NoContent)]
         [SwaggerResponse(HttpStatusCode.ServiceUnavailable)]
         public double EvaluateScore(int userId)

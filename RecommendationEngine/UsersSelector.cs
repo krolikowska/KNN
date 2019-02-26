@@ -27,40 +27,6 @@ namespace RecommendationEngine
             return usersToCompare;
         }
 
-        public List<int> GetUsersWhoRatedAtLeastNBooks(int numOfBooks)
-        {
-            return _context.GetUserIdsWithNorMoreRatedBooks(numOfBooks);
-        }
-
-        public List<UsersSimilarity> GetSimilarUsersFromDb(int userId, int settingsVersion)
-        {
-            var similarUsersFromDb = _context.GetUserNeighbors(userId, settingsVersion);
-            var similarUsers = new List<UsersSimilarity>();
-
-            foreach (var similarity in similarUsersFromDb)
-            {
-                var temp = GetMutualAndUniqueBooks(similarity);
-                if (temp != null)
-                    similarUsers.Add(temp);
-            }
-
-            return similarUsers;
-        }
-
-        public int[] GetListOfUsersWithComputedSimilarityForGivenSettings(int settingId) =>
-            _context.GetAllUsersWithComputedSimilarity(_settingsVersion);
-
-    
-
-        public UsersSimilarity GetMutualAndUniqueBooks(UserSimilar userSimilarFromDb)
-        {
-            var similarity = SelectMutualAndUniqueBooksForUsers(userSimilarFromDb.UserId, userSimilarFromDb.NeighborId);
-            if (similarity == null) return null;
-            similarity.Similarity = userSimilarFromDb.Similarity;
-
-            return similarity;
-        }
-
         public UsersSimilarity SelectMutualAndUniqueBooksForUsers(int userId, int comparedUserId)
         {
             var books1 = _context.GetBooksRatesByUserId(userId);

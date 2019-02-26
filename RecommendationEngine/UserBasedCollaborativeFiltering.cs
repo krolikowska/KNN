@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using DataAccess;
+﻿using DataAccess;
 
 namespace RecommendationEngine
 {
@@ -13,19 +7,26 @@ namespace RecommendationEngine
         private readonly INearestNeighborsSearch _nearestNeighbors;
         private readonly IBookRecommender _recommender;
         private readonly IUsersSelector _selector;
-        private readonly CollaborativeFilteringHelpers _helpers;
 
-        public UserBasedCollaborativeFiltering(IBookRecommender recommender, INearestNeighborsSearch nearestNeighbors,
-            CollaborativeFilteringHelpers helpers, IUsersSelector selector)
+        public UserBasedCollaborativeFiltering(
+            IBookRecommender recommender,
+            INearestNeighborsSearch nearestNeighbors,
+            IUsersSelector selector)
         {
             _recommender = recommender;
             _nearestNeighbors = nearestNeighbors;
-            _helpers = helpers;
             _selector = selector;
         }
 
         public Book[] RecommendBooksForUser(int userId, ISettings settings)
         {
+            // get from db by default
+            var books = _recommender.GetRecommendedBooksFromDatabase(userId);
+            if (books.Length != 0)
+            {
+                return books;
+            }
+
             var users = _selector.SelectUsersIdsToCompareWith(userId);
             var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId, users, settings);
 

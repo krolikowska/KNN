@@ -32,6 +32,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <WarningsAsErrors>1591</WarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -85,7 +86,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataManagerHelpers.cs" />
+    <Compile Include="BookScoreComparerTests.cs" />
+    <Compile Include="UsersSimilarityReverseComparerTests.cs" />
+    <Compile Include="DataManagerTestHelpers.cs" />
     <Compile Include="DataManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

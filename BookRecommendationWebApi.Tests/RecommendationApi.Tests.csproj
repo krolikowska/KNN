@@ -115,7 +115,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="RecommendationControllerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +126,18 @@
     <ProjectReference Include="..\BookRecommendationWebApi\RecommendationApi.csproj">
       <Project>{74E225BA-49A8-433D-A402-F0D754B08AD6}</Project>
       <Name>RecommendationApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataAccess\DataAccess.csproj">
+      <Project>{D6AB2F78-3F3C-425F-B690-9DC0B210C780}</Project>
+      <Name>DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RecommendationEngine.Tests\RecommendationEngine.Tests.csproj">
+      <Project>{374DCE48-945D-45AC-A69A-E6BF8F8F45BC}</Project>
+      <Name>RecommendationEngine.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RecommendationEngine\RecommendationEngine.csproj">
+      <Project>{9DB2592F-3804-419B-9BD6-4D86EA1F16D2}</Project>
+      <Name>RecommendationEngine</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

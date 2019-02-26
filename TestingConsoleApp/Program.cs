@@ -1,20 +1,19 @@
-﻿using System;
+﻿using RecommendationEngine;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Threading;
-using DataAccess;
-using RecommendationEngine;
-using SimpleInjector;
 
 namespace TestingConsoleApp
 {
     class Program
     {
-        static CollaborativeFilteringHelpers _helper;
-        static IRecommendationEvaluator _evaluator;
+        private static CollaborativeFilteringHelpers _helper;
+        private static IRecommendationEvaluator _evaluator;
         private static IUsersSelector _selector;
-        static ISettings _settings;
+        private static ISettings _settings;
+        private static readonly string deafultPath = @"..\..\UsersList.csv";
+        const int noBooksRange = 200;
+        const int neighborsRange = 200;
 
         static void Main(string[] args)
         {
@@ -25,35 +24,119 @@ namespace TestingConsoleApp
             _selector = container.GetInstance<IUsersSelector>();
             _settings = container.GetInstance<ISettings>();
 
-       //     ComputeForDifferentParameters(260531, "test");
 
-            ComputeForDifferentSetup(80,60);
+            if (args.Length < 1)
+            {
+                PrintIntro();
+                return;
+            }
+            else
+            {
+                string UserId;
+                switch (args[0])
+                {
+                    case "-user":
 
-            //int[] n = {5, 50, 80};
-            //int[] k = {30, 40, 60};
+                        if (args.Length < 2)
+                        {
+                            Console.WriteLine("Provide user id");
+                            UserId = Console.ReadLine();
+                        }
+                        else
+                        {
+                            UserId = args[1];
+                        }
+                        if (EvaluateScoreForUser(UserId) == false) return;
+                        break;
 
-            //for (int i = 0; i < n.Length; i++)
-            //{
-            //    ComputeForDifferentSetup(n[i], k[i]);
+                    case "-all-users":
+                        if (args.Length < 3)
+                        {
+                            Console.WriteLine("Evaluate for parameters from config file");
+                            PrintSettings();
+                            EvaluateScoresForAllUsers(deafultPath);
+                        }
+                        else
+                        {
+                            if (int.TryParse(args[1], out int n) && int.TryParse(args[2], out int k))
+                            {
+                                EvaluateForSpecifiedParameters(n, k);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Wrong user id");
+                                return;
+                            }
+                        }
+                        break;
+                    case "-search":
 
-            //    Console.BackgroundColor = ConsoleColor.Cyan;
-            //    Console.WriteLine($" Progress {i / n.Length:P}");
-            //    Console.BackgroundColor = ConsoleColor.Black;
-            //}
+                        if (args.Length < 2)
+                        {
+                            Console.WriteLine("Provide user id");
+                            UserId = Console.ReadLine();
+                        }
+                        else
+                        {
+                            UserId = args[1];
+                        }
+                        if (EvaluateForVariousParametersSets(UserId) == false) return;
+                        break;
+
+                    default:
+                        Console.WriteLine($"Invalid command: {args[0]}");
+                        return;
+                }
+            }
         }
 
-        private static void ComputeForDifferentSetup(int n, int k)
+        private static void PrintIntro()
+        {
+            Console.WriteLine($"\nUse option: -user --id, -all-users, -all-users --N --K, --search");
+            Console.WriteLine($"\n-user --id         Evaluate book scores for given user id and setup from app.config, errors are printed in console. Parameter --id must be a int value" +
+                              $"\n-all-users         Evalute book scores for given users list from csv file, results are persited in csv file" +
+                              $"\n-all-users --N --K Evaluate for given BooksRead (N) and NearestNeighbors (K)" +
+                              $"\n-search --id       Evaluate book scores for given user id and all various parametes set, results are persited in csv file. Parameter --id must be a int value");
+        }
+        private static bool EvaluateScoreForUser(string UserId)
+        {
+            if (int.TryParse(UserId, out int id))
+            {
+                EvaluateScoreForUser(id);
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("Wrong user id");
+                return false;
+            }
+        }
+        private static bool EvaluateForVariousParametersSets(string UserId)
+        {
+            if (int.TryParse(UserId, out int id))
+            {
+                EvaluateForVariousParametersSets(id, UserId);
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("Wrong user id");
+                return false;
+            }
+        }
+        private static void EvaluateForSpecifiedParameters(int n, int k)
         {
             _settings.MinNumberOfBooksEachUserRated = n;
             _settings.NumOfNeighbors = k;
 
-            ComputeForUsers();
+            PrintSettings();
+            EvaluateScoresForAllUsers(deafultPath);
         }
 
-        private static void EvaluateScoreForUSer(int userId)
+        private static void EvaluateScoreForUser(int userId)
         {
             PrintSettings();
-            var users = _selector.GetUsersWhoRatedAtLeastNBooks(_settings.MinNumberOfBooksEachUserRated);
+            var users = _selector.SelectUsersIdsToCompareWith(userId);
             var (mae, rsme) = _evaluator.EvaluateScoreForUserWithErrors(userId, _settings, users);
 
             Console.WriteLine($"N: {_settings.MinNumberOfBooksEachUserRated} K: {_settings.NumOfNeighbors}, MAE: {mae}, RSME: {rsme}");
@@ -66,13 +149,12 @@ namespace TestingConsoleApp
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        private static void ComputeForUsers()
+        private static void EvaluateScoresForAllUsers(string path)
         {
             var listOfErrors = new List<Tuple<int, int, int, double, double>>();
-            var users = _helper.ReadFromCsv(@"..\..\UsersList.csv");
-            var usersToCompare = _selector.GetUsersWhoRatedAtLeastNBooks(_settings.MinNumberOfBooksEachUserRated);
+            var users = _helper.ReadFromCsv(path);
+            var usersToCompare = _selector.SelectUsersIdsToCompareWith(_settings.MinNumberOfBooksEachUserRated);
 
-            Console.WriteLine($"Read {users.Count} users from file");
             var counter = 0;
             try
             {
@@ -87,7 +169,7 @@ namespace TestingConsoleApp
 
                     counter++;
                     Console.WriteLine($"User {user} N: {_settings.MinNumberOfBooksEachUserRated} K: {_settings.NumOfNeighbors}, MAE: {mae}, RSME: {rsme}");
-                    Console.WriteLine($" Progress {counter / users.Count*100:P}");
+                    Console.WriteLine($" Progress {counter / users.Count * 100:P}");
                 }
             }
             finally
@@ -97,17 +179,17 @@ namespace TestingConsoleApp
             }
         }
 
-        private static void ComputeForDifferentParameters(int userId, string name)
+        private static void EvaluateForVariousParametersSets(int userId, string name)
         {
             var listOfErrors = new List<Tuple<int, int, double, double>>();
             var stopWatch = new Stopwatch();
 
-            const int noBooksRange = 5;
-            const int neighborsRange = 200;
-            const int loops = (neighborsRange / 10 - 1) * (noBooksRange / 10);
+            const int loops = ((neighborsRange / 10) - 1) * (noBooksRange / 10);
 
             var counter = 0;
             var sum = 0L;
+
+            Console.WriteLine($"Evaluate for N from 5 to {noBooksRange} and K from 20 to {neighborsRange} with iterator = 10");
 
             try
             {
@@ -121,7 +203,7 @@ namespace TestingConsoleApp
                         _settings.MinNumberOfBooksEachUserRated = 5;
                     }
 
-                    var users = _selector.GetUsersWhoRatedAtLeastNBooks(_settings.MinNumberOfBooksEachUserRated);
+                    var users = _selector.SelectUsersIdsToCompareWith(userId);
                     Console.BackgroundColor = ConsoleColor.Black;
 
                     for (var j = 20; j <= neighborsRange; j += 10)

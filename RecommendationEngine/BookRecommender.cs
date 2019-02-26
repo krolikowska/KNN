@@ -1,65 +1,30 @@
-﻿using System;
+﻿using DataAccess;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using DataAccess;
 
 namespace RecommendationEngine
 {
     public class BookRecommender : IBookRecommender
     {
-        private readonly int _numbOfBooksToRecommend;
         private readonly IDataManager _context;
-        private readonly int _minNumOfUsersWhoRatedBook;
+        private readonly ISettings _settings;
 
         public BookRecommender(ISettings settings, IDataManager context)
         {
             _context = context;
-            _numbOfBooksToRecommend = settings.NumOfBooksToRecommend;
-            _minNumOfUsersWhoRatedBook = settings.MinNumberOfBooksEachUserRated;
+            _settings = settings;
         }
 
-        public BookScore[] GetRecommendedBooksWithScores(List<UsersSimilarity> similarUsers, int userId)
+        public Book[] GetRecommendedBooksFromDatabase(int userId)
         {
-            var booksIds = PreparePotentialBooksToRecommendation(similarUsers, userId);
-            var booksRates = GetAllRecommendedBooksForUser(similarUsers, userId, booksIds);
-            var result = booksRates.Take(_numbOfBooksToRecommend).ToArray();
-            PersistRecommendedBooksInDb(result, userId);
-            return result.ToArray();
+            return _context.GetRecommendedBooksForUser(userId).ToArray();
         }
 
         public Book[] GetRecommendedBooks(List<UsersSimilarity> similarUsers, int userId)
         {
             var bookIds = GetRecommendedBooksWithScores(similarUsers, userId).Select(x => x.BookId);
             return _context.GetBooksFromGivenBookScores(bookIds);
-        }
-
-        public SortedSet<BookScore> GetAllRecommendedBooksForUser(List<UsersSimilarity> similarUsers, int userId,
-            string[] booksIds)
-        {
-            if (similarUsers == null || similarUsers?.Count == 0) return null;
-            var recommendedBooks = new SortedSet<BookScore>(new BookScoreComparer());
-
-            if (booksIds.Length == 0)
-            {
-                PersistRecommendedBooksInDb(null, userId);
-                return null;
-            }
-
-            var meanRateForUser = _context.GetAverageRateForUser(userId) ?? 0;
-
-            foreach (var id in booksIds)
-            {
-                var temp = new BookScore
-                {
-                    UserId = userId,
-                    BookId = id
-                };
-                var bookScore = EvaluateScore(similarUsers, temp, meanRateForUser);
-                if (bookScore != null)
-                    recommendedBooks.Add(bookScore);
-            }
-
-            return recommendedBooks;
         }
 
         public List<BookScore> PredictScoreForAllUsersBooks(List<UsersSimilarity> usersSimilarity, int userId)
@@ -82,6 +47,47 @@ namespace RecommendationEngine
             }
 
             return predictedScores;
+        }
+
+        public void PersistRecommendedBooksInDb(BookScore[] books, int userId) =>
+            _context.AddRecommendedBooksForUser(books, userId);
+
+        public BookScore[] GetRecommendedBooksWithScores(List<UsersSimilarity> similarUsers, int userId)
+        {
+            var booksIds = PreparePotentialBooksToRecommendation(similarUsers, userId);
+            var booksRates = GetAllRecommendedBooksForUser(similarUsers, userId, booksIds);
+            var result = booksRates.Take(_settings.NumOfBooksToRecommend).ToArray();
+            PersistRecommendedBooksInDb(result, userId);
+            return result.ToArray();
+        }
+
+        private List<BookScore> GetAllRecommendedBooksForUser(List<UsersSimilarity> similarUsers, int userId,
+            string[] booksIds)
+        {
+            if (similarUsers == null || similarUsers?.Count == 0) return null;
+            var recommendedBooks = new List<BookScore>();
+
+            if (booksIds.Length == 0)
+            {
+                PersistRecommendedBooksInDb(null, userId);
+                return null;
+            }
+
+            var meanRateForUser = _context.GetAverageRateForUser(userId) ?? 0;
+
+            foreach (var id in booksIds)
+            {
+                var temp = new BookScore
+                {
+                    UserId = userId,
+                    BookId = id
+                };
+                var bookScore = EvaluateScore(similarUsers, temp, meanRateForUser);
+                if (bookScore != null)
+                    recommendedBooks.Add(bookScore);
+            }
+
+            return recommendedBooks.OrderByDescending(x => x.PredictedRate).ToList();
         }
 
         private BookScore EvaluateScore(IEnumerable<UsersSimilarity> similarUsers, BookScore bookScore,
@@ -109,19 +115,18 @@ namespace RecommendationEngine
             return bookScore;
         }
 
-        public void PersistRecommendedBooksInDb(BookScore[] books, int userId) =>
-            _context.AddRecommendedBooksForUser(books, userId);
+       
 
-        public string[] PreparePotentialBooksToRecommendation(List<UsersSimilarity> similarUsers, int userId)
+        private string[] PreparePotentialBooksToRecommendation(List<UsersSimilarity> similarUsers, int userId)
         {
             var booksIds = GetUniqueBooksIds(similarUsers); // we get list contains all books read by neighbors,
-            return _minNumOfUsersWhoRatedBook == 0
+            return _settings.BookPopularityAmongUsers == 0
                 ? booksIds
                 : _context.GetBooksIdsRatedByAtLeastNUsers(booksIds,
-                                                           _minNumOfUsersWhoRatedBook);
+                                                           _settings.BookPopularityAmongUsers);
         }
 
-        public string[] GetUniqueBooksIds(List<UsersSimilarity> similarUsers)
+        private string[] GetUniqueBooksIds(List<UsersSimilarity> similarUsers)
         {
             // unique list of books we recommend
             return similarUsers
@@ -131,7 +136,7 @@ namespace RecommendationEngine
                    .ToArray();
         }
 
-        public List<UsersSimilarity> CombineUniqueAndMutualBooksForUser(List<UsersSimilarity> similarUsers)
+        private List<UsersSimilarity> CombineUniqueAndMutualBooksForUser(List<UsersSimilarity> similarUsers)
         {
             foreach (var u in similarUsers)
             {
