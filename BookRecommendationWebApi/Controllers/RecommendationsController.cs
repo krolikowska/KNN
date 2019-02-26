@@ -1,5 +1,4 @@
-﻿using DataAccess;
-using RecommendationApi.Models;
+﻿using RecommendationApi.Models;
 using RecommendationEngine;
 using Swashbuckle.Swagger.Annotations;
 using System.Collections.Generic;
@@ -17,15 +16,12 @@ namespace RecommendationApi.Controllers
     {
         private readonly IUserBasedCollaborativeFiltering _runner;
         private readonly ISettings _settings;
-        private readonly IDataManager _context;
         private readonly IRecommendationEvaluator _evaluator;
 
-        public RecommendationsController(IUserBasedCollaborativeFiltering runner, ISettings settings,
-            IDataManager context, IRecommendationEvaluator evaluator)
+        public RecommendationsController(IUserBasedCollaborativeFiltering runner, ISettings settings, IRecommendationEvaluator evaluator)
         {
             _runner = runner;
             _settings = settings;
-            _context = context;
             _evaluator = evaluator;
         }
 
@@ -55,7 +51,6 @@ namespace RecommendationApi.Controllers
                     return Content<IEnumerable<BookModel>>(HttpStatusCode.NoContent, null);
                 }
 
-
                 var books = booksForUser
                     .Select(x => new BookModel
                     {
@@ -81,7 +76,7 @@ namespace RecommendationApi.Controllers
         [Route("EvaluateScore/{userId}")]
         [SwaggerOperation("Evaluate score for books user read",
             OperationId = "EvaluateScore")]
-        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(IEnumerable<NeighborsModel>))]
+        [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NoContent)]
         [SwaggerResponse(HttpStatusCode.ServiceUnavailable)]
         public double EvaluateScore(int userId)

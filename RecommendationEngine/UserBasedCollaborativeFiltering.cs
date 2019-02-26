@@ -7,17 +7,14 @@ namespace RecommendationEngine
         private readonly INearestNeighborsSearch _nearestNeighbors;
         private readonly IBookRecommender _recommender;
         private readonly IUsersSelector _selector;
-        private readonly CollaborativeFilteringHelpers _helpers;
 
         public UserBasedCollaborativeFiltering(
             IBookRecommender recommender,
             INearestNeighborsSearch nearestNeighbors,
-            CollaborativeFilteringHelpers helpers,
             IUsersSelector selector)
         {
             _recommender = recommender;
             _nearestNeighbors = nearestNeighbors;
-            _helpers = helpers;
             _selector = selector;
         }
 

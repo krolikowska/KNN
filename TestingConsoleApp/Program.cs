@@ -96,7 +96,7 @@ namespace TestingConsoleApp
             Console.WriteLine($"\n-user --id         Evaluate book scores for given user id and setup from app.config, errors are printed in console. Parameter --id must be a int value" +
                               $"\n-all-users         Evalute book scores for given users list from csv file, results are persited in csv file" +
                               $"\n-all-users --N --K Evaluate for given BooksRead (N) and NearestNeighbors (K)" +
-                              $"\n-search            Evaluate book scores for given user id and all various parametes set, results are persited in csv file");
+                              $"\n-search --id       Evaluate book scores for given user id and all various parametes set, results are persited in csv file. Parameter --id must be a int value");
         }
         private static bool EvaluateScoreForUser(string UserId)
         {
@@ -136,7 +136,7 @@ namespace TestingConsoleApp
         private static void EvaluateScoreForUser(int userId)
         {
             PrintSettings();
-            var users = _selector.GetUsersWhoRatedAtLeastNBooks(_settings.MinNumberOfBooksEachUserRated);
+            var users = _selector.SelectUsersIdsToCompareWith(userId);
             var (mae, rsme) = _evaluator.EvaluateScoreForUserWithErrors(userId, _settings, users);
 
             Console.WriteLine($"N: {_settings.MinNumberOfBooksEachUserRated} K: {_settings.NumOfNeighbors}, MAE: {mae}, RSME: {rsme}");
@@ -153,7 +153,7 @@ namespace TestingConsoleApp
         {
             var listOfErrors = new List<Tuple<int, int, int, double, double>>();
             var users = _helper.ReadFromCsv(path);
-            var usersToCompare = _selector.GetUsersWhoRatedAtLeastNBooks(_settings.MinNumberOfBooksEachUserRated);
+            var usersToCompare = _selector.SelectUsersIdsToCompareWith(_settings.MinNumberOfBooksEachUserRated);
 
             var counter = 0;
             try
@@ -203,7 +203,7 @@ namespace TestingConsoleApp
                         _settings.MinNumberOfBooksEachUserRated = 5;
                     }
 
-                    var users = _selector.GetUsersWhoRatedAtLeastNBooks(_settings.MinNumberOfBooksEachUserRated);
+                    var users = _selector.SelectUsersIdsToCompareWith(userId);
                     Console.BackgroundColor = ConsoleColor.Black;
 
                     for (var j = 20; j <= neighborsRange; j += 10)

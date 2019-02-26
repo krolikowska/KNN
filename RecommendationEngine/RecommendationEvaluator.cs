@@ -10,10 +10,10 @@ namespace RecommendationEngine
         private readonly INearestNeighborsSearch _nearestNeighbors;
         private readonly IBookRecommender _recommender;
         private readonly IUsersSelector _selector;
-        private readonly CollaborativeFilteringHelpers _helpers;
+        private readonly ICollaborativeFilteringHelpers _helpers;
 
         public RecommendationEvaluator(IBookRecommender recommender, INearestNeighborsSearch nearestNeighbors,
-            CollaborativeFilteringHelpers helpers, IUsersSelector selector)
+            ICollaborativeFilteringHelpers helpers, IUsersSelector selector)
         {
             _recommender = recommender;
             _nearestNeighbors = nearestNeighbors;
@@ -24,7 +24,7 @@ namespace RecommendationEngine
         public double EvaluateScoreForUSer(int userId, ISettings settings)
         {
             _helpers.SaveSettings(settings.Id);
-            var users = _selector.GetUsersWhoRatedAtLeastNBooks(settings.MinNumberOfBooksEachUserRated);
+            var users = _selector.SelectUsersIdsToCompareWith(userId);
             var similarUsers = _nearestNeighbors.GetNearestNeighbors(userId, users, settings);
             var scores = _recommender.PredictScoreForAllUsersBooks(similarUsers, userId);
             _helpers.PersistSimilarUsersInDb(similarUsers, settings.Id);
@@ -95,12 +95,14 @@ namespace RecommendationEngine
             return Math.Round(Math.Sqrt(squareError), 4);
         }
 
-        private static void ValidateInput(int predictedRatesLenght, int actualRatesLenght)
+        private static void ValidateInput(int predictedRatesLength, int actualRatesLength)
         {
-            if (predictedRatesLenght == 0 || actualRatesLenght == 0)
-                throw new InvalidOperationException("Rates lenght must be bigger than zero");
-            if (predictedRatesLenght != actualRatesLenght)
-                throw new InvalidOperationException("Actual and predicted rates must have same lenght");
+            if (predictedRatesLength == 0 || actualRatesLength == 0)
+                throw new InvalidOperationException("Rates length must be bigger than zero");
+            if (predictedRatesLength != actualRatesLength)
+                throw new InvalidOperationException("Actual and predicted rates must have same length");
+            if (predictedRatesLength <= 0) throw new ArgumentOutOfRangeException(nameof(predictedRatesLength));
+            if (actualRatesLength <= 0) throw new ArgumentOutOfRangeException(nameof(actualRatesLength));
         }
     }
 }

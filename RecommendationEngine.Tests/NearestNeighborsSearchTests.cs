@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
+﻿using System.Collections.Generic;
 using System.Linq;
 using DataAccess;
 using NSubstitute;
@@ -19,6 +17,7 @@ namespace RecommendationEngine.Tests
         public NearestNeighborsSearchTests()
         {
             _usersSelector = Substitute.For<IUsersSelector>();
+            _helpers = new TestHelpers();
             _settings = new TestSettings
             {
                 SimilarityDistance = DistanceSimilarityEnum.PearsonSimilarity,
@@ -40,8 +39,8 @@ namespace RecommendationEngine.Tests
         {
             var similarity = new UsersSimilarity
             {
-                ComparedUserRatesForMutualBooks = _helpers.CreateBookScore(2, new[] {"1", "2", "3"}, new short[] {1, 2, 3}),
-                UserRatesForMutualBooks = _helpers.CreateBookScore(2, new[] {"1", "2", "3"}, new short[] {1, 2, 3}),
+                ComparedUserRatesForMutualBooks = _helpers.CreateBookScores(2, new[] {"1", "2", "3"}, new short[] {1, 2, 3}),
+                UserRatesForMutualBooks = _helpers.CreateBookScores(2, new[] {"1", "2", "3"}, new short[] {1, 2, 3}),
             };
 
             _usersSelector.SelectMutualAndUniqueBooksForUsers(1, 2).Returns(similarity);
@@ -59,8 +58,8 @@ namespace RecommendationEngine.Tests
             _settings.SimilarityDistance = distance;
             var similarity = new UsersSimilarity
             {
-                ComparedUserRatesForMutualBooks = _helpers.CreateBookScore(2, new[] {"1", "2", "3"}, new short[] {1, 2, 3}),
-                UserRatesForMutualBooks = _helpers.CreateBookScore(2, new[] {"1", "2", "3"}, new short[] {1, 2, 3}),
+                ComparedUserRatesForMutualBooks = _helpers.CreateBookScores(2, new[] {"1", "2", "3"}, new short[] {1, 2, 3}),
+                UserRatesForMutualBooks = _helpers.CreateBookScores(2, new[] {"1", "2", "3"}, new short[] {1, 2, 3}),
             };
 
             _usersSelector.SelectMutualAndUniqueBooksForUsers(1, 2).Returns(similarity);
@@ -80,8 +79,8 @@ namespace RecommendationEngine.Tests
             _settings.SimilarityDistance = distance;
             var similarity = new UsersSimilarity
             {
-                ComparedUserRatesForMutualBooks = _helpers.CreateBookScore(2, new[] {"1", "2", "3"}, new short[] {1, 1, 1}),
-                UserRatesForMutualBooks = _helpers.CreateBookScore(2, new[] {"1", "2", "3"}, new short[] {10, 10, 10}),
+                ComparedUserRatesForMutualBooks = _helpers.CreateBookScores(2, new[] {"1", "2", "3"}, new short[] {1, 1, 1}),
+                UserRatesForMutualBooks = _helpers.CreateBookScores(2, new[] {"1", "2", "3"}, new short[] {10, 10, 10}),
             };
 
             _usersSelector.SelectMutualAndUniqueBooksForUsers(1, 2).Returns(similarity);
@@ -100,22 +99,22 @@ namespace RecommendationEngine.Tests
             _settings.SimilarityDistance = distance;
             var similarity_1 = new UsersSimilarity
             {
-                ComparedUserRatesForMutualBooks = _helpers.CreateBookScore(2, new[] {"1", "2", "3"}, new short[] {1, 2, 2}),
-                UserRatesForMutualBooks = _helpers.CreateBookScore(1, new[] {"1", "2", "3"}, new short[] {1, 2, 3}),
+                ComparedUserRatesForMutualBooks = _helpers.CreateBookScores(2, new[] {"1", "2", "3"}, new short[] {1, 2, 2}),
+                UserRatesForMutualBooks = _helpers.CreateBookScores(1, new[] {"1", "2", "3"}, new short[] {1, 2, 2}),
                 ComparedUserId = 2
             };
 
             var similarity_2 = new UsersSimilarity
             {
-                ComparedUserRatesForMutualBooks = _helpers.CreateBookScore(3, new[] {"1", "2", "3"}, new short[] {1, 2, 2}),
-                UserRatesForMutualBooks = _helpers.CreateBookScore(1, new[] {"1", "2", "3"}, new short[] {4, 4, 2}),
+                ComparedUserRatesForMutualBooks = _helpers.CreateBookScores(3, new[] {"1", "2", "3"}, new short[] {1, 2, 2}),
+                UserRatesForMutualBooks = _helpers.CreateBookScores(1, new[] {"1", "2", "3"}, new short[] {1, 4, 2}),
                 ComparedUserId = 3
             };
 
             var similarity_3 = new UsersSimilarity
             {
-                ComparedUserRatesForMutualBooks = _helpers.CreateBookScore(4, new[] {"1", "2", "3"}, new short[] {1, 2, 2}),
-                UserRatesForMutualBooks = _helpers.CreateBookScore(1, new[] {"1", "2", "3"}, new short[] {5, 5, 2}),
+                ComparedUserRatesForMutualBooks = _helpers.CreateBookScores(4, new[] {"1", "2", "3"}, new short[] {1, 2, 2}),
+                UserRatesForMutualBooks = _helpers.CreateBookScores(1, new[] {"1", "2", "3"}, new short[] {10, 5, 3}),
                 ComparedUserId = 4
             };
 
@@ -126,7 +125,7 @@ namespace RecommendationEngine.Tests
             var actual = _sut.GetNearestNeighbors(1, new List<int>() {2, 3, 4}, _settings);
 
             actual.ShouldNotBeNull();
-            actual.Select(x => x.ComparedUserId).ShouldBe(new[] {2, 3} ,ignoreOrder:true);
+            actual.Select(x => x.ComparedUserId).ShouldBe(new[] {2, 3});
             actual.Count.ShouldBe(2);
         }
     }

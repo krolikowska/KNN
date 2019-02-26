@@ -23,7 +23,7 @@ namespace RecommendationApi
             container.Register<IDataManager, DataManager>();
             container.Register<IUserBasedCollaborativeFiltering, UserBasedCollaborativeFiltering>();
             container.Register<IRecommendationEvaluator, RecommendationEvaluator>();
-            container.Register<CollaborativeFilteringHelpers>();
+            container.Register<ICollaborativeFilteringHelpers, CollaborativeFilteringHelpers>();
 
             config.DependencyResolver = new SimpleInjectorWebApiDependencyResolver(container);
             container.Verify();

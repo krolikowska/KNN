@@ -16,7 +16,7 @@ namespace RecommendationEngine
             container.Register<IDataManager, DataManager>();
             container.Register<IUserBasedCollaborativeFiltering, UserBasedCollaborativeFiltering>();
             container.Register<IRecommendationEvaluator, RecommendationEvaluator>();
-            container.Register<CollaborativeFilteringHelpers>();
+            container.Register<ICollaborativeFilteringHelpers, CollaborativeFilteringHelpers>();
 
             return container;
         }

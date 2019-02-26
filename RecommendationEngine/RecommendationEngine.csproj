@@ -83,6 +83,7 @@
     <Compile Include="Helpers\CollaborativeFilteringHelpers.cs" />
     <Compile Include="Helpers\ContainerBuilder.cs" />
     <Compile Include="Helpers\DistanceSimilarityMetricsEnum.cs" />
+    <Compile Include="Helpers\ICollaborativeFilteringHelpers.cs" />
     <Compile Include="Interfaces\IBookRecommender.cs" />
     <Compile Include="Interfaces\INearestNeighborsSearch.cs" />
     <Compile Include="Interfaces\IRecommendationEvaluator.cs" />
