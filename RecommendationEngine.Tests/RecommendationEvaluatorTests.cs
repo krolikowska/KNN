@@ -30,7 +30,7 @@ namespace RecommendationEngine.Tests
 
             _sut = new RecommendationEvaluator(_recommender, _nearestNeighbors, _cfHelpers, _selector);
         }
-
+//test comment
         private readonly RecommendationEvaluator _sut;
 
         [Theory]
