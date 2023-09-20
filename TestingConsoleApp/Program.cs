@@ -39,7 +39,7 @@ namespace TestingConsoleApp
 
                         if (args.Length < 2)
                         {
-                            Console.WriteLine("Provide user id");
+                            Console.WriteLine("Provide user id:");
                             UserId = Console.ReadLine();
                         }
                         else
