@@ -44,7 +44,7 @@ namespace RecommendationEngine.Tests
             var scores = _testHelpers.CreateBookScores(userId, new[] { "1", "2", "3" }, actual, predicted).ToList();
             var users = new List<int> { };
             var similarUsers = new List<UsersSimilarity>();
-
+//second test commit
             _selector.SelectUsersIdsToCompareWith(userId).Returns(users);
             _nearestNeighbors.GetNearestNeighbors(userId, users, _settings).Returns(similarUsers);
             _recommender.PredictScoreForAllUsersBooks(similarUsers, userId).Returns(scores);
